@@ -93,7 +93,7 @@ if __name__ == '__main__':
                 probability_result = nb_classifier.prob_classify(normalized_comment_feature_set)
                 
                 #Print statistics:
-                naive_bayes_classifier.print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer)
+                naive_bayes_classifier.print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer, classifier_accuracy)
                 #naive_bayes_classifier.find_word_from_training_set(normalized_comment, normalized_comment_features)
                 
     #Runtime stamp

@@ -2,6 +2,20 @@ from random import shuffle
 
 from preprocessing import preprocessor
 
+'''
+REFERENCES:
+
+http://blog.chapagain.com.np/python-nltk-sentiment-analysis-on-movie-reviews-natural-language-processing-nlp/
+Above link demonstrates the use of movie review data and nltk Naive Bayes classifier library.
+
+Documentation for nltk Naive Bayes:
+https://www.nltk.org/_modules/nltk/classify/naivebayes.html
+
+Chapter from book:
+https://www.nltk.org/book/ch06.html
+
+'''
+
 from nltk.corpus import movie_reviews 
 from nltk import FreqDist
 from nltk import NaiveBayesClassifier
@@ -10,11 +24,10 @@ from nltk.corpus import stopwords
 from sys import exit
 import string 
 
-def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer):
+def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer, classifier_accuracy):
     
     prob_pos = probability_result.prob("pos")
     prob_neg = probability_result.prob("neg")
-    
     
     print('\n******* SENTENCE STATISTICS *******\n')
     print("Classified comment: {}".format(user_answer))
@@ -50,13 +63,13 @@ def print_statistics(probability_result, nb_classifier, normalized_comment_featu
         classification = 'Neutral'
     
     print("\nClassification: {}\n".format(classification))
-    
+    print('Classifier accuracy: {}\n'.format(classifier_accuracy))
     
 def test_classifier(classifier, validation_data_set):
     '''Return classifier accuracy'''
     
     classifier_accuracy = classify.accuracy(classifier, validation_data_set)
-    print(classifier_accuracy)
+    
     return classifier_accuracy
     
 def train_NB_Classifier(training_data_set):
@@ -146,7 +159,6 @@ def create_word_feature_sets():
     
 def configure_classifier():
     
-    '''REFERENCE: http://blog.chapagain.com.np/python-nltk-sentiment-analysis-on-movie-reviews-natural-language-processing-nlp/'''
     feature_set_positive, feature_set_negative = create_word_feature_sets()
     
     shuffle(feature_set_positive)
