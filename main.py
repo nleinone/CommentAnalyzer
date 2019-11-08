@@ -3,7 +3,8 @@ from datetime import datetime
 
 from parsing import parsing_functions
 from preprocessing import preprocessor
-from sentiment_analyser import naive_bayes_classifier
+from sentiment_analyser import configure_classifiers
+from sentiment_analyser import generate_classifier_data_sets
 
 if __name__ == '__main__':
     
@@ -14,10 +15,28 @@ if __name__ == '__main__':
     #Runtime stamp
     datetime_start = datetime.now()
     
+    #Configure classifiers:
+    print("Generating training and test data...")
+    training_data, test_data = generate_classifier_data_sets.get_training_and_test_data()
     
-    #Configure classifier:
-    print("Configuring classifier...")
-    nb_classifier, classifier_accuracy = naive_bayes_classifier.configure_classifier()
+    #nb_classifier, nb_classifier_accuracy, dt_classifier, dt_classifier_accuracy = configure_classifiers.configure_all(training_data, test_data)
+    nb_classifier, nb_classifier_accuracy = configure_classifiers.configure_all(training_data, test_data)
+    
+    print("1. Naive Bayes (Accuracy {})".format(nb_classifier_accuracy * 100))
+    #print("2. Decision Tree (Accuracy {})".format(dt_classifier_accuracy * 100))
+    
+    choice = input('Choose classifier: ')
+    
+    if choice == 1:
+        classifier = nb_classifier
+        classifier_accuracy = nb_classifier_accuracy
+    #elif choice == 2:
+    #    classifier = dt_classifier
+    #    classifier_accuracy = dt_classifier_accuracy
+    else:
+        classifier = nb_classifier
+        classifier_accuracy = nb_classifier_accuracy
+        
     '''*** INITIAL CONFIGURATIONS ENDS***'''
     
     '''**** FILE PARSING PROCESS STARTS HERE****'''
@@ -86,14 +105,14 @@ if __name__ == '__main__':
                 
                 '''*** SENTIMENT ANALYSIS WITH NAIVE BAYES STARTS HERE***'''
 
-                normalized_comment_feature_set = naive_bayes_classifier.bag_of_words(normalized_comment, training_mode)
+                normalized_comment_feature_set = generate_classifier_data_sets.bag_of_words(normalized_comment, training_mode)
                 
                 #print("normalized_comment_feature_set: {}".format(normalized_comment_feature_set))
                 
-                probability_result = nb_classifier.prob_classify(normalized_comment_feature_set)
+                probability_result = classifier.prob_classify(normalized_comment_feature_set)
                 
                 #Print statistics:
-                naive_bayes_classifier.print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer, classifier_accuracy)
+                generate_classifier_data_sets.print_statistics(probability_result, classifier, normalized_comment_feature_set, user_answer, classifier_accuracy)
                 #naive_bayes_classifier.find_word_from_training_set(normalized_comment, normalized_comment_features)
                 
     #Runtime stamp
