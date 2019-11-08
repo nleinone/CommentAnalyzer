@@ -7,28 +7,46 @@ def normalize_and_clean_comment(stopword_filtered_comment):
     
     cleaned_comment = []
     
-    for word in stopword_filtered_comment:
-        
-        if word.isalpha():
-            cleaned_comment.append(word.lower())
-        
+    for comment in stopword_filtered_comment:
+        single_comment = []
+        for word in comment:
+            if word.isalpha():
+                single_comment.append(word.lower())
+        if len(single_comment) != 0:
+            cleaned_comment.append(single_comment)
     #print('cleaned: {}'.format(cleaned_comment))
     
     return cleaned_comment
     
-def filter_stopwords(tokenized_answer):
+def filter_stopwords(tokenized_answer, training_mode):
     '''Filter stopwords'''
     
-    stop_words = set(stopwords.words('english')) 
-    stopword_filtered_answer = []
+    stop_words = set(stopwords.words('english'))
     
-    for word in tokenized_answer:
-        if word not in stop_words:
-            stopword_filtered_answer.append(word)
-            
-    #print('filtered: {}'.format(stopword_filtered_answer))
-    return stopword_filtered_answer
+    stopword_filtered_answer = []
 
+    if training_mode:
+        for comment in tokenized_answer:
+            single_comment = []
+            for word in comment:
+                if word not in stop_words:
+                    single_comment.append(word)
+            if len(single_comment) != 0:
+                stopword_filtered_answer.append(single_comment)
+    
+        #print('filtered: {}'.format(stopword_filtered_answer))
+        
+    
+    else:
+        single_comment = []
+        for word in tokenized_answer:
+            if word not in stop_words:
+                single_comment.append(word)
+        if len(single_comment) != 0:
+            stopword_filtered_answer.append(single_comment)
+    
+    return stopword_filtered_answer
+    
 def tokenize_comment(user_answer):
     '''Tokenize user answer'''
     

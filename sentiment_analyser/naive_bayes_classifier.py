@@ -6,24 +6,52 @@ from nltk.corpus import movie_reviews
 from nltk import FreqDist
 from nltk import NaiveBayesClassifier
 from nltk import classify 
-from nltk.corpus import stopwords 
+from nltk.corpus import stopwords
+from sys import exit
 import string 
 
-
-def find_word_from_training_set(comment_words, features):
-
-    print("Comment: {}".format(comment_words))
-    #print("len of comment features: {}".format(len(features)))
+def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer):
     
-    #print(features)
+    prob_pos = probability_result.prob("pos")
+    prob_neg = probability_result.prob("neg")
     
-def print_statistics(probability_result, nb_classifier):
-                
-    print (probability_result.max()) #Output
-    print ("Probability of negative: {}".format(probability_result.prob("neg"))) #Probability for the comment being negative.
-    print ("Probability of negative: {}".format(probability_result.prob("pos"))) #Probability for the comment being positive.
-    #print (nb_classifier.show_most_informative_features(10)) #Most 10 informative words (features)
+    
+    print('\n******* SENTENCE STATISTICS *******\n')
+    print("Classified comment: {}".format(user_answer))
+    print("Classified comment word set: {}".format(normalized_comment_feature_set.keys()))
+    print("Probability for negative sentiment: {}".format(prob_pos) )   
+    print("Probability for positive sentiment: {}".format(prob_neg))
 
+    #Classification axis:'
+    
+    #By probability % of positive sentiment:
+    #Positive          80%->
+    #Somewhat Positive 60%-80%
+    #Neutral           50%-60%
+    
+    #By probability % of negative sentiment:
+    #Negative          80%->
+    #Somewhat Negative 60%-80%
+    #Neutral           50%-60%
+    
+    classifications = ['Positive', 'Somewhat positive', 'Neutral', 'Somewhat_negative', 'negative']
+    
+    if prob_pos >= 0.80:
+        classification = 'Positive'
+    elif prob_pos >= 0.60:
+        classification = 'Somewhat positive'
+    elif prob_pos >= 0.50:
+        classification = 'Neutral'
+    if prob_neg >= 0.80:
+        classification = 'Negative'
+    elif prob_neg >= 0.60:
+        classification = 'Somewhat negative'
+    elif prob_neg >= 0.50:
+        classification = 'Neutral'
+    
+    print("\nClassification: {}\n".format(classification))
+    
+    
 def test_classifier(classifier, validation_data_set):
     '''Return classifier accuracy'''
     
@@ -36,163 +64,105 @@ def train_NB_Classifier(training_data_set):
     
     naive_bayes_classifier = NaiveBayesClassifier.train(training_data_set)
     return naive_bayes_classifier
-    
-def create_word_feature_set(document, features):
-    """Create word feature set to train the classifier"""
-    
-    words = set(document)
-    feature_set = {}
-    
-    for word in features:
-        feature_set[word] = (word in words)
-    
-    #print(feature_set)
-    return feature_set
-
-def get_frequency_distribution(all_words):
-    """Count how many times each word occur in the dataset"""
-    frequency_distribution = FreqDist(all_words)
-    #print (frequency_distribution.most_common(10))
-    return frequency_distribution
-    
-def get_all_words():
-    """Get all words from the movie review list"""
-    
-    all_words = []
-    for word in movie_reviews.words():
-        all_words.append(word.lower())
-    return all_words    
-    
-def get_features():
+      
+def divide_and_clean_reviews():
     """Get word features of 10 words out of common_word_limit (2000) most common words"""
-    
-    #frequency_distribution = get_frequency_distribution(normalized_all_words)
-    
+
     #Collect positive reviews:
     positive_reviews = []
     for id in movie_reviews.fileids('pos'):
         words = movie_reviews.words(id)
-        for word in words:
-            positive_reviews.append(word.lower())
-
+        positive_reviews.append(words)
+            
+    #print("positive_reviews in divide_and_clean_reviews: {}".format(positive_reviews[0]))          [OK]
+    #print("len of positive_reviews in divide_and_clean_reviews: {}".format(len(positive_reviews))) [OK]    
+    
     #Collect negative reviews:
     negative_reviews = []
     for id in movie_reviews.fileids('neg'):
         words = movie_reviews.words(id)
-        for word in words:
-            negative_reviews.append(word.lower())
+        negative_reviews.append(words)
+    
+    #print("negative_reviews in divide_and_clean_reviews: {}".format(negative_reviews[0]))          [OK]
+    #print("len of negative_reviews in divide_and_clean_reviews: {}".format(len(negative_reviews))) [OK]    
     
     #Clean the reviews
-    filt_neg_revs = preprocessor.filter_stopwords(negative_reviews)
-    filt_pos_revs = preprocessor.filter_stopwords(positive_reviews)
+    training_mode = True
+    filt_neg_revs = preprocessor.filter_stopwords(negative_reviews, training_mode)
+    filt_pos_revs = preprocessor.filter_stopwords(positive_reviews, training_mode)
     
-    normalized_all_words_neg = preprocessor.normalize_and_clean_comment(filt_neg_revs)
-    normalized_all_words_pos = preprocessor.normalize_and_clean_comment(filt_pos_revs)
+    #print("filt_neg_revs: {}".format(filt_neg_revs))                                               [OK]
+    #print("filt_pos_revs: {}".format(filt_pos_revs))                                               [OK]
+        
+    #print("len filt_neg_revs: {}".format(len(filt_neg_revs)))                                      [OK]
+    #print("len filt_pos_revs: {}".format(len(filt_pos_revs)))                                      [OK]
     
-    #frequency_distribution_neg = get_frequency_distribution(normalized_all_words_neg)
-    #frequency_distribution_pos = get_frequency_distribution(normalized_all_words_pos)
     
-    #Create bag of words from all words:
-    #all_words = get_all_words()
-    #stopword_filtered_all_words = preprocessor.filter_stopwords(all_words)
-    #normalized_all_words = preprocessor.normalize_and_clean_comment(stopword_filtered_all_words)
-    #bag_of_words(normalized_all_words)
+    
+    normalized_reviews_neg = preprocessor.normalize_and_clean_comment(filt_neg_revs)
+    normalized_reviews_pos = preprocessor.normalize_and_clean_comment(filt_pos_revs)
 
-    #positive reviews feature set
-    pos_reviews_set = []
-    for words in normalized_all_words_neg:
-        pos_reviews_set.append((bag_of_words(words), 'pos'))
-     
-    #negative reviews feature set
-    neg_reviews_set = []
-    for words in normalized_all_words_neg:
-        neg_reviews_set.append((bag_of_words(words), 'neg'))    
+    #print("normalized_reviews_pos: {}".format(normalized_reviews_pos))                             [OK]
+    #print("len normalized_reviews_pos: {}".format(len(normalized_reviews_pos)))                    [OK]
     
-    #Shuffle sets
-    shuffle(pos_reviews_set)
-    shuffle(neg_reviews_set)
-    
-    print (len(pos_reviews_set))
-    print (len(neg_reviews_set))
-    #common_word_number_limit = 1000
-    
-    #common_words_neg = frequency_distribution_neg.most_common(common_word_number_limit)
-    #common_words_pos = frequency_distribution_pos.most_common(common_word_number_limit)
-    
-    #common_words = common_words_neg + common_words_pos
-    
-    #feature = []
-    
-    #for word_tuple in common_words:
-    #    feature.append(word_tuple[0])
-    
-    #return feature
-    return pos_reviews_set, neg_reviews_set
-    
-def movie_reviews_to_document_list():
-    """Use nltk movie review corpus to train and test the NB classifier
-       Total number of reviews is 2000
-       First 1000 reviews are positive reviews
-       Last  1000 reviews are negative reviews
-    """
-    
-    documents = []
- 
-    for sentiment in movie_reviews.categories():
-        for id in movie_reviews.fileids(sentiment):
-            documents.append((movie_reviews.words(id), sentiment))
-     
-    shuffle(documents)
-    return documents
+    return normalized_reviews_pos, normalized_reviews_neg
 
-def bag_of_words(words_clean):
-
-    #words_clean = []
-    #stopwords_english = stopwords.words('english')
-    
-    #for word in clean_words:
-    #    word = word.lower()
-    #    if word not in stopwords_english and word not in string.punctuation:
-    #        words_clean.append(word)
+def bag_of_words(words_clean, training_mode):
+    '''Create bag of words'''
+    #print("words: {}".format(words_clean))
     words_dictionary = {}
-    print("words_clean len: {}".format(len(words_clean)))
-    counter = 0
-    for word in words_clean:
-        words_dictionary[word] = True
-        #print("test{}".format(counter))
-        counter += 1
-    
+    if training_mode:
+        for word in words_clean:
+            words_dictionary[word] = True
+    else:
+        for word in words_clean[0]:
+            words_dictionary[word] = True
     #words_dictionary = dict([word, True] for word in words_clean)
-    
+    #print("Bag of words: {}".format(words_dictionary))
     return words_dictionary
     
+def create_word_feature_sets():
+    """Create word feature set to train the classifier"""
+    
+    positive_reviews, negative_reviews = divide_and_clean_reviews()
+    #print("positive_reviews: {}".format(positive_reviews))
+    #print("negative_reviews: {}".format(negative_reviews))
+    training_mode = True
+    
+    feature_set_positive = []
+    for words in positive_reviews:
+        feature_set_positive.append((bag_of_words(words, training_mode), 'pos'))
+    
+    #print("feature_set_positive: {}".format(feature_set_positive[0]))                              [OK]
+    
+    #negative reviews feature set
+    feature_set_negative = []
+    for words in negative_reviews:
+        feature_set_negative.append((bag_of_words(words, training_mode), 'neg'))
+
+    #print("feature_set_negative: {}".format(feature_set_negative))                                 [OK]                     
+
+    return feature_set_positive, feature_set_negative
     
 def configure_classifier():
     
     '''REFERENCE: http://blog.chapagain.com.np/python-nltk-sentiment-analysis-on-movie-reviews-natural-language-processing-nlp/'''
+    feature_set_positive, feature_set_negative = create_word_feature_sets()
     
-    documents = movie_reviews_to_document_list()
-    #feature_sets = []
-    pos_reviews_set, neg_reviews_set = get_features()
-   
-    #for (document, sentiment) in documents:
-    #    f_set = (create_word_feature_set(document, features), sentiment)
-    #    feature_sets.append(f_set)
-    
-    #shuffle(feature_sets)
+    shuffle(feature_set_positive)
+    shuffle(feature_set_negative)
     
     #TEST DATA SPLIT:
-    #validation_data_set = feature_sets[:400]
-    #training_data_set = feature_sets[400:]
-    test_set = pos_reviews_set[:200] + neg_reviews_set[:200]
-    training_data_set = pos_reviews_set[200:] + neg_reviews_set[200:]
-    
-    print(len(test_set),  len(training_data_set)) # Output: (400, 1600)
+    test_set = feature_set_positive[:200] + feature_set_negative[:200]
+    training_data_set = feature_set_positive[200:] + feature_set_negative[200:]
 
+    #print("len test_set: {}".format(len(test_set)))                                                [OK]
+    #print("len training_data_set: {}".format(len(training_data_set)))                              [OK]
+    
     #TRAINING:
     nb_classifier = train_NB_Classifier(training_data_set)
     
     #VALIDATION:
     classifier_accuracy = test_classifier(nb_classifier, test_set)
-
-    return nb_classifier, classifier_accuracy, features
+    
+    return nb_classifier, classifier_accuracy

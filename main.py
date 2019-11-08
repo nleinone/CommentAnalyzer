@@ -12,12 +12,12 @@ if __name__ == '__main__':
     
     '''*** INITIAL CONFIGURATIONS ***'''
     #Runtime stamp
-    dateTimeObj = datetime.now()
-    hours_start, mins_start, secs_start, msecs_start = dateTimeObj.hour, dateTimeObj.minute, dateTimeObj.second, dateTimeObj.microsecond
+    datetime_start = datetime.now()
+    
     
     #Configure classifier:
     print("Configuring classifier...")
-    nb_classifier, classifier_accuracy, features = naive_bayes_classifier.configure_classifier()
+    nb_classifier, classifier_accuracy = naive_bayes_classifier.configure_classifier()
     '''*** INITIAL CONFIGURATIONS ENDS***'''
     
     '''**** FILE PARSING PROCESS STARTS HERE****'''
@@ -64,33 +64,42 @@ if __name__ == '__main__':
             for comment in comment_set:
                 user_answer = comment['user_answer']
                 
+                #print("user_answer: {}".format(user_answer))
+                
                 #Tokenize comment
                 tokenized_comment = preprocessor.tokenize_comment(user_answer)
                 
+                #print("tokenized_comment: {}".format(tokenized_comment))
+                
                 #Filter stopwords
-                stopword_filtered_comment = preprocessor.filter_stopwords(tokenized_comment)
+                training_mode = False
+                stopword_filtered_comment = preprocessor.filter_stopwords(tokenized_comment, training_mode)
+                
+                #print("stopword_filtered_comment: {}".format(stopword_filtered_comment))
                 
                 #Clean the user answer
                 normalized_comment = preprocessor.normalize_and_clean_comment(stopword_filtered_comment)
-                #print("User comment: {}".format(normalized_comment))
+                
+                #print("Normalized comment: {}".format(normalized_comment))
+                
                 '''*** NATURAL LANGUAGE PREPROCESSING STOPS HERE***'''
                 
                 '''*** SENTIMENT ANALYSIS WITH NAIVE BAYES STARTS HERE***'''
+
+                normalized_comment_feature_set = naive_bayes_classifier.bag_of_words(normalized_comment, training_mode)
                 
+                #print("normalized_comment_feature_set: {}".format(normalized_comment_feature_set))
                 
-                
-                normalized_comment_features = naive_bayes_classifier.create_word_feature_set(normalized_comment, features)
-                probability_result = nb_classifier.prob_classify(normalized_comment_features)
+                probability_result = nb_classifier.prob_classify(normalized_comment_feature_set)
                 
                 #Print statistics:
-                naive_bayes_classifier.print_statistics(probability_result, nb_classifier)
-                naive_bayes_classifier.find_word_from_training_set(normalized_comment, normalized_comment_features)
+                naive_bayes_classifier.print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer)
+                #naive_bayes_classifier.find_word_from_training_set(normalized_comment, normalized_comment_features)
                 
     #Runtime stamp
-    dateTimeObj = datetime.now()
-    hours_finish, mins_finish, secs_finish, msecs_finish = dateTimeObj.hour, dateTimeObj.minute, dateTimeObj.second, dateTimeObj.microsecond              
-    runtime_hours, runtime_mins, runtime_secs, runtime_msecs = hours_finish - hours_start, mins_finish - mins_start, secs_finish - secs_start, msecs_finish - msecs_start
-    print("Runtime: {}:{}:{}:{}\n".format(runtime_hours, runtime_mins, runtime_secs, runtime_msecs))
+    
+    
+    print("Runtime: {}\n".format(datetime.now() - datetime_start))
                 
                 
                 
