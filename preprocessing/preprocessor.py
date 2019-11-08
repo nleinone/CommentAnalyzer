@@ -14,7 +14,6 @@ def normalize_and_clean_comment(stopword_filtered_comment):
                 single_comment.append(word.lower())
         if len(single_comment) != 0:
             cleaned_comment.append(single_comment)
-    #print('cleaned: {}'.format(cleaned_comment))
     
     return cleaned_comment
     
@@ -32,10 +31,7 @@ def filter_stopwords(tokenized_answer, training_mode):
                 if word not in stop_words:
                     single_comment.append(word)
             if len(single_comment) != 0:
-                stopword_filtered_answer.append(single_comment)
-    
-        #print('filtered: {}'.format(stopword_filtered_answer))
-        
+                stopword_filtered_answer.append(single_comment)  
     
     else:
         single_comment = []
@@ -51,5 +47,4 @@ def tokenize_comment(user_answer):
     '''Tokenize user answer'''
     
     tokenized_answer = nltk.word_tokenize(user_answer)
-    #print('tokenized: {}'.format(tokenized_answer))
     return tokenized_answer

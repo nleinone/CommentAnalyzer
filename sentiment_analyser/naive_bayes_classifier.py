@@ -86,43 +86,25 @@ def divide_and_clean_reviews():
     for id in movie_reviews.fileids('pos'):
         words = movie_reviews.words(id)
         positive_reviews.append(words)
-            
-    #print("positive_reviews in divide_and_clean_reviews: {}".format(positive_reviews[0]))          [OK]
-    #print("len of positive_reviews in divide_and_clean_reviews: {}".format(len(positive_reviews))) [OK]    
     
     #Collect negative reviews:
     negative_reviews = []
     for id in movie_reviews.fileids('neg'):
         words = movie_reviews.words(id)
-        negative_reviews.append(words)
-    
-    #print("negative_reviews in divide_and_clean_reviews: {}".format(negative_reviews[0]))          [OK]
-    #print("len of negative_reviews in divide_and_clean_reviews: {}".format(len(negative_reviews))) [OK]    
+        negative_reviews.append(words)  
     
     #Clean the reviews
     training_mode = True
     filt_neg_revs = preprocessor.filter_stopwords(negative_reviews, training_mode)
     filt_pos_revs = preprocessor.filter_stopwords(positive_reviews, training_mode)
     
-    #print("filt_neg_revs: {}".format(filt_neg_revs))                                               [OK]
-    #print("filt_pos_revs: {}".format(filt_pos_revs))                                               [OK]
-        
-    #print("len filt_neg_revs: {}".format(len(filt_neg_revs)))                                      [OK]
-    #print("len filt_pos_revs: {}".format(len(filt_pos_revs)))                                      [OK]
-    
-    
-    
     normalized_reviews_neg = preprocessor.normalize_and_clean_comment(filt_neg_revs)
     normalized_reviews_pos = preprocessor.normalize_and_clean_comment(filt_pos_revs)
-
-    #print("normalized_reviews_pos: {}".format(normalized_reviews_pos))                             [OK]
-    #print("len normalized_reviews_pos: {}".format(len(normalized_reviews_pos)))                    [OK]
     
     return normalized_reviews_pos, normalized_reviews_neg
 
 def bag_of_words(words_clean, training_mode):
     '''Create bag of words'''
-    #print("words: {}".format(words_clean))
     words_dictionary = {}
     if training_mode:
         for word in words_clean:
@@ -130,30 +112,23 @@ def bag_of_words(words_clean, training_mode):
     else:
         for word in words_clean[0]:
             words_dictionary[word] = True
-    #words_dictionary = dict([word, True] for word in words_clean)
-    #print("Bag of words: {}".format(words_dictionary))
+
     return words_dictionary
     
 def create_word_feature_sets():
     """Create word feature set to train the classifier"""
     
     positive_reviews, negative_reviews = divide_and_clean_reviews()
-    #print("positive_reviews: {}".format(positive_reviews))
-    #print("negative_reviews: {}".format(negative_reviews))
+    
     training_mode = True
     
     feature_set_positive = []
     for words in positive_reviews:
         feature_set_positive.append((bag_of_words(words, training_mode), 'pos'))
-    
-    #print("feature_set_positive: {}".format(feature_set_positive[0]))                              [OK]
-    
-    #negative reviews feature set
+
     feature_set_negative = []
     for words in negative_reviews:
-        feature_set_negative.append((bag_of_words(words, training_mode), 'neg'))
-
-    #print("feature_set_negative: {}".format(feature_set_negative))                                 [OK]                     
+        feature_set_negative.append((bag_of_words(words, training_mode), 'neg'))                   
 
     return feature_set_positive, feature_set_negative
     
@@ -167,9 +142,6 @@ def configure_classifier():
     #TEST DATA SPLIT:
     test_set = feature_set_positive[:200] + feature_set_negative[:200]
     training_data_set = feature_set_positive[200:] + feature_set_negative[200:]
-
-    #print("len test_set: {}".format(len(test_set)))                                                [OK]
-    #print("len training_data_set: {}".format(len(training_data_set)))                              [OK]
     
     #TRAINING:
     nb_classifier = train_NB_Classifier(training_data_set)

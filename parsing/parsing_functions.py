@@ -25,8 +25,6 @@ def separate_comments_by_bot_mood(information_collection):
 def distinguish_information(file_line):
     '''Convert line to dictionary with following keys: user_name, time, bot_mood, bot_answer, user_answer'''
 
-    #print('file_line: {}\n'.format(file_line))
-    #print('file_line_type: {}\n'.format(type(file_line)))
     file_line_splitted = file_line.split('"')
     file_line_splitted = file_line_splitted[1::2]
     
@@ -35,11 +33,6 @@ def distinguish_information(file_line):
     
     for index in range(len(keys)):
         dict[keys[index]] = file_line_splitted[index]
-        #for value in file_line_splitted:
-        #print('value: {}\n'.format(value))
-    
-    #for index in keys:
-    #    print("dictionary {}: {}\n".format(index, dict[index]))
     
     return dict
     
@@ -51,13 +44,12 @@ def convert_file_to_list(file_count, file_name):
     with open('././docs/' + file_name, 'r') as file:
         for line in file:
             lines_list.append(line)
-            #print('Line {}: {}\n'.format(counter + 1, line))
             if counter == file_count:
                 print('Max counter limit exceeded ({})'.format(max_line_amount))
                 break
             counter += 1
     file.close()
-    #print('Lines list: {}\n'.format(lines_list))
+    
     return lines_list
         
 def count_file_lines(csv_file_names):
@@ -71,8 +63,6 @@ def count_file_lines(csv_file_names):
                     print('Max counter limit exceeded ({})'.format(max_line_amount))
                     break
                 counter += 1
-        #print('Counting lines from {}\n'.format(file_name))
-        #print('{} lines found.\n'.format(counter))
         file.close()
     
     return counter
