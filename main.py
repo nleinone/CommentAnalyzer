@@ -7,20 +7,39 @@ from sentiment_analyser import configure_classifiers
 from sentiment_analyser import generate_classifier_data_sets
 
 if __name__ == '__main__':
-    
-    '''Variables'''
-    number_of_lines_processed = 0
-    
-    '''*** INITIAL CONFIGURATIONS ***'''
     #Runtime stamp
     datetime_start = datetime.now()
+    '''Variables'''
+    number_of_lines_processed = 0
+    cross_validations_folds = [100, 200, 300, 400, 500]
+    fold_accuracies = []
     
-    #Configure classifiers:
-    print("Generating training and test data...")
-    training_data, test_data = generate_classifier_data_sets.get_training_and_test_data()
+    '''*** INITIAL CONFIGURATIONS ***'''
+    print("Configuring classifiers...")
+    
+    for fold in cross_validations_folds:
+        print("Searching accuracy with {}/1000 test/train split \n".format(fold))
+        average_accuracy = 0
+        divider = 1
+        for index in range(1):
+            
+            training_data, test_data = generate_classifier_data_sets.get_training_and_test_data(fold)
+            nb_classifier, nb_classifier_accuracy = configure_classifiers.configure_all(training_data, test_data)
+            print("found accuracy: {}".format(nb_classifier_accuracy))
+            average_accuracy += nb_classifier_accuracy
+            print("{}. Iteration: Avg. Accuracy: {} \n".format(index, average_accuracy / divider))
+            divider += 1
+        print(divider)
+        fold_accuracies.append([average_accuracy / (divider - 1), fold])
+    
+    print("Average accuracies from cross-validation: \n")
+    print(fold_accuracies)
+    print('')
+    
+     
+    
     
     #nb_classifier, nb_classifier_accuracy, dt_classifier, dt_classifier_accuracy = configure_classifiers.configure_all(training_data, test_data)
-    nb_classifier, nb_classifier_accuracy = configure_classifiers.configure_all(training_data, test_data)
     
     print("1. Naive Bayes (Accuracy {})".format(nb_classifier_accuracy * 100))
     #print("2. Decision Tree (Accuracy {})".format(dt_classifier_accuracy * 100))
@@ -105,7 +124,7 @@ if __name__ == '__main__':
                 
                 '''*** SENTIMENT ANALYSIS WITH NAIVE BAYES STARTS HERE***'''
 
-                normalized_comment_feature_set = generate_classifier_data_sets.bag_of_words(normalized_comment, training_mode)
+                normalized_comment_feature_set = generate_classifier_data_sets.remove_duplicates(normalized_comment, training_mode)
                 
                 #print("normalized_comment_feature_set: {}".format(normalized_comment_feature_set))
                 
