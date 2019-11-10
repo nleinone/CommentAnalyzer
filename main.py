@@ -11,50 +11,35 @@ if __name__ == '__main__':
     datetime_start = datetime.now()
     '''Variables'''
     number_of_lines_processed = 0
-    cross_validations_folds = [100, 200, 300, 400, 500]
-    fold_accuracies = []
+    cross_validations_fold_ratio = 200
     
     '''*** INITIAL CONFIGURATIONS ***'''
     print("Configuring classifiers...")
     
-    for fold in cross_validations_folds:
-        print("Searching accuracy with {}/1000 test/train split \n".format(fold))
-        average_accuracy = 0
-        divider = 1
-        for index in range(1):
-            
-            training_data, test_data = generate_classifier_data_sets.get_training_and_test_data(fold)
-            nb_classifier, nb_classifier_accuracy = configure_classifiers.configure_all(training_data, test_data)
-            print("found accuracy: {}".format(nb_classifier_accuracy))
-            average_accuracy += nb_classifier_accuracy
-            print("{}. Iteration: Avg. Accuracy: {} \n".format(index, average_accuracy / divider))
-            divider += 1
-        print(divider)
-        fold_accuracies.append([average_accuracy / (divider - 1), fold])
+    #training_data, test_data = generate_classifier_data_sets.get_training_and_test_data(fold)
+    training_and_test_data = generate_classifier_data_sets.get_training_and_test_data(cross_validations_fold_ratio)
     
+    nb_classifier, avg_accuracy = configure_classifiers.configure_all(training_and_test_data)
     print("Average accuracies from cross-validation: \n")
-    print(fold_accuracies)
+    print(avg_accuracy)
     print('')
-    
-     
-    
     
     #nb_classifier, nb_classifier_accuracy, dt_classifier, dt_classifier_accuracy = configure_classifiers.configure_all(training_data, test_data)
     
-    print("1. Naive Bayes (Accuracy {})".format(nb_classifier_accuracy * 100))
+    print("1. Naive Bayes (Accuracy {})".format(avg_accuracy * 100))
     #print("2. Decision Tree (Accuracy {})".format(dt_classifier_accuracy * 100))
     
     choice = input('Choose classifier: ')
     
     if choice == 1:
         classifier = nb_classifier
-        classifier_accuracy = nb_classifier_accuracy
+        classifier_accuracy = avg_accuracy
     #elif choice == 2:
     #    classifier = dt_classifier
     #    classifier_accuracy = dt_classifier_accuracy
     else:
         classifier = nb_classifier
-        classifier_accuracy = nb_classifier_accuracy
+        classifier_accuracy = avg_accuracy
         
     '''*** INITIAL CONFIGURATIONS ENDS***'''
     
