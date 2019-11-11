@@ -19,24 +19,21 @@ if __name__ == '__main__':
     #training_data, test_data = generate_classifier_data_sets.get_training_and_test_data(fold)
     training_and_test_data = generate_classifier_data_sets.get_training_and_test_data(cross_validations_fold_ratio)
     
-    nb_classifier, avg_accuracy = configure_classifiers.configure_all(training_and_test_data)
-    print("Average accuracies from cross-validation: \n")
-    print(avg_accuracy)
-    print('')
+    nb_classifier, nb_avg_accuracy, dt_classifier, dt_classifier_accuracy = configure_classifiers.configure_all(training_and_test_data)
     
     #nb_classifier, nb_classifier_accuracy, dt_classifier, dt_classifier_accuracy = configure_classifiers.configure_all(training_data, test_data)
     
     print("1. Naive Bayes (Accuracy {})".format(avg_accuracy * 100))
-    #print("2. Decision Tree (Accuracy {})".format(dt_classifier_accuracy * 100))
+    print("2. Decision Tree (Accuracy {})".format(dt_classifier_accuracy * 100))
     
     choice = input('Choose classifier: ')
     
     if choice == 1:
         classifier = nb_classifier
         classifier_accuracy = avg_accuracy
-    #elif choice == 2:
-    #    classifier = dt_classifier
-    #    classifier_accuracy = dt_classifier_accuracy
+    elif choice == 2:
+        classifier = dt_classifier
+        classifier_accuracy = dt_classifier_accuracy
     else:
         classifier = nb_classifier
         classifier_accuracy = avg_accuracy
