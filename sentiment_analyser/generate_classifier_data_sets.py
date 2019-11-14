@@ -121,18 +121,28 @@ def extract_feature_unigram(words_clean, training_mode):
     return words_dictionary
     
 def extract_features_bigram(words_clean, training_mode):
+    '''
+    words_ng = []
+    for item in iter(ngrams(words, n)):
+        words_ng.append(item)
+    words_dictionary = dict([word, True] for word in words_ng)    
+    return words_dictionary
+    '''
     '''Extract bigram word features'''
     words_bigram = []
-    
+    print("bigram 1")
     if training_mode:
         
         for i in iter(ngrams(words_clean, 2)):
             words_bigram.append(i)
     else:
-        
+        print("bigram 2")
         for i in iter(ngrams(words_clean[0], 2)):
+            print("bigram 3: {}".format(i))
             words_bigram.append(i)
-        
+    
+    print("bigram words: ")
+    print(words_bigram)
     words_dictionary = {}
     
     try:
@@ -141,10 +151,10 @@ def extract_features_bigram(words_clean, training_mode):
             for word in words_bigram:
                 words_dictionary[word] = True
         
-            else:
-                for word in words_bigram[0]:
-                    words_dictionary[word] = True
-    
+        else:
+            for word in words_bigram:
+                words_dictionary[word] = True
+
     except:
         return words_bigram
     
@@ -165,6 +175,7 @@ def create_word_feature_sets():
     
     positive_reviews_uni, negative_reviews_uni, positive_reviews_bigram, negative_reviews_bigram = divide_and_clean_reviews()
     training_mode = True
+    
     feature_set_positive = []
     
     for clean_words_uni, clean_words_bigram in zip(positive_reviews_uni, positive_reviews_bigram):

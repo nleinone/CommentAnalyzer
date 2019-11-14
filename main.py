@@ -97,8 +97,7 @@ if __name__ == '__main__':
                 normalized_comment_feature_set_bigram = generate_classifier_data_sets.extract_features_bigram(normalized_comment_bigram, training_mode)
                 normalized_comment_feature_set = generate_classifier_data_sets.extract_features(normalized_comment_unigram, normalized_comment_bigram, training_mode)
                 
-                
-                """
+                '''
                 print("normalized comment unigram: ")
                 print(normalized_comment_unigram)
                 print("normalized comment bigram: ")
@@ -110,7 +109,8 @@ if __name__ == '__main__':
                 print("extract_features: ")
                 print(normalized_comment_feature_set)
                 exit()
-                """
+                '''
+                
                 probability_result = classifier.prob_classify(normalized_comment_feature_set)
                 
                 #Print statistics:

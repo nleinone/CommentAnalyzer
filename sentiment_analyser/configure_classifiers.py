@@ -22,6 +22,7 @@ def configure_all(training_and_test_data, all_training_data):
     nb_sum_accuracies = sum(nb_accuracies)
     nb_avg_accuracy = nb_sum_accuracies / nb_count_accuracies
     
+    
     #Train with all data available
     print("Training Naive Bayes Classifier...")
     nb_classifier = NaiveBayesClassifier.train(all_training_data)
