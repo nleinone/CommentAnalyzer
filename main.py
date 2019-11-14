@@ -17,7 +17,7 @@ if __name__ == '__main__':
     print("Configuring classifiers...")
     
     training_and_test_data, all_training_data = generate_classifier_data_sets.get_training_and_test_data(cross_validations_fold_ratio)
-    nb_classifier, nb_avg_accuracy = configure_classifiers.configure_all(training_and_test_data, all_training_data)
+    nb_classifier, nb_avg_accuracy = configure_classifiers.configure_all(training_and_test_data, all_training_data, False)
     
     classifier = nb_classifier
     classifier_accuracy = nb_avg_accuracy
