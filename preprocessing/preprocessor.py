@@ -1,7 +1,9 @@
 import nltk
 from nltk.tokenize import word_tokenize
+
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
+import string
 
 def normalize_and_clean_comment(stopword_filtered_comment):
     """Make all words lowercase and clean words which are not alphabetic"""
@@ -22,8 +24,8 @@ def filter_stopwords(tokenized_answer, training_mode, bigram):
     '''Filter stopwords'''
     
     not_filtered = ['above', 'below', 'off', 'over', 'under', 'more', 'most', 'such', 'no', 'nor', 'not', 'only', 'so', 'than', 'too', 'very', 'just', 'but']
- 
-    stop_words = set(stopwords.words('english'))
+    
+    stop_words = stopwords.words('english')
     
     if bigram:
         stop_words = set(stopwords.words('english')) - set(not_filtered)   
@@ -34,7 +36,7 @@ def filter_stopwords(tokenized_answer, training_mode, bigram):
         for comment in tokenized_answer:
             single_comment = []
             for word in comment:
-                if word not in stop_words:
+                if word.lower() not in stop_words and word.lower() not in string.punctuation:
                     single_comment.append(word)
             if len(single_comment) != 0:
                 stopword_filtered_answer.append(single_comment)
@@ -42,7 +44,7 @@ def filter_stopwords(tokenized_answer, training_mode, bigram):
     else:
         single_comment = []
         for word in tokenized_answer:
-            if word not in stop_words:
+            if word.lower() not in stop_words and word.lower() not in string.punctuation:
                 single_comment.append(word)
         if len(single_comment) != 0:
             stopword_filtered_answer.append(single_comment)
@@ -52,7 +54,14 @@ def filter_stopwords(tokenized_answer, training_mode, bigram):
 def tokenize_comment(user_answer):
     '''Tokenize user answer'''
     
+    ##0.7795 
+    #0.7835
+    #0.7849
+    #0.787
+    #TreewordBankTokenizer
     tokenized_answer = nltk.word_tokenize(user_answer)
+    
+    #tokenized_answer = nltk.wordpunct_tokenize(user_answer)
     return tokenized_answer
     
 def stem_sentence(sentences, training_mode):

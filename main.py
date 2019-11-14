@@ -16,8 +16,8 @@ if __name__ == '__main__':
     '''*** INITIAL CONFIGURATIONS ***'''
     print("Configuring classifiers...")
     
-    training_and_test_data = generate_classifier_data_sets.get_training_and_test_data(cross_validations_fold_ratio)
-    nb_classifier, nb_avg_accuracy = configure_classifiers.configure_all(training_and_test_data)
+    training_and_test_data, all_training_data = generate_classifier_data_sets.get_training_and_test_data(cross_validations_fold_ratio)
+    nb_classifier, nb_avg_accuracy = configure_classifiers.configure_all(training_and_test_data, all_training_data)
     
     classifier = nb_classifier
     classifier_accuracy = nb_avg_accuracy
@@ -26,9 +26,11 @@ if __name__ == '__main__':
     
     '''**** FILE PARSING PROCESS STARTS HERE****'''
     #Fetch csv document
+    print("test1")
     csv_file_names = parsing_functions.fetch_document_names()
     
     for file_name in csv_file_names:
+        print("test2")
         #Variables
         information_collection = []
         bot_mood_happy_collection = []
@@ -42,12 +44,15 @@ if __name__ == '__main__':
         
         #Distinguish information from file line (user_name, time, bot_mood, bot_answer, user_answer):
         for file_line in file_lines_list:
+            print("test3")
             information_dictionary = parsing_functions.distinguish_information(file_line)
             information_collection.append(information_dictionary)
-       
+        
+        #print(information_collection)
         happy_bot_comments, happysad_bot_comments, sad_bot_comments, neutral_bot_comments, hello_bot_comments = parsing_functions.separate_comments_by_bot_mood(information_collection)
         all_comments = [happy_bot_comments, happysad_bot_comments, sad_bot_comments, neutral_bot_comments, hello_bot_comments]
-        
+        print("all comments: ")
+        #print(all_comments)
         for comment_set in all_comments:         
             try:
                 first_comment = comment_set[0]
@@ -60,27 +65,52 @@ if __name__ == '__main__':
             '''*** PARSING ENDS HERE ***'''
             
             '''*** NATURAL LANGUAGE PREPROCESSING STARTS HERE***'''
-            
+            print("test4")
             #Preprocess user comments one bot mood data set at time:
             for comment in comment_set:
+                print("test5")
+                training_mode = False
                 user_answer = comment['user_answer']
                 
                 #Tokenize comment
                 tokenized_comment = preprocessor.tokenize_comment(user_answer)
         
-                #Filter stopwords
-                training_mode = False
-                bigram = True
-                stopword_filtered_comment = preprocessor.filter_stopwords(tokenized_comment, training_mode, bigram)
+                #Filter stopwords for unigram
+                bigram = False
+                stopword_filtered_comment_unigram = preprocessor.filter_stopwords(tokenized_comment, training_mode, bigram)
                 
-                #Clean the user answer
-                normalized_comment = preprocessor.normalize_and_clean_comment(stopword_filtered_comment)
+                #Filter stopwords for bigram
+                bigram = True
+                stopword_filtered_comment_bigram = preprocessor.filter_stopwords(tokenized_comment, training_mode, bigram)
+                
+                #Clean the user answer unigram
+                normalized_comment_unigram = preprocessor.normalize_and_clean_comment(stopword_filtered_comment_unigram)
+                
+                #Clean the user answer bigram
+                normalized_comment_bigram = preprocessor.normalize_and_clean_comment(stopword_filtered_comment_bigram)
                 
                 '''*** NATURAL LANGUAGE PREPROCESSING STOPS HERE***'''
                 
                 '''*** SENTIMENT ANALYSIS WITH NAIVE BAYES STARTS HERE***'''
             
-                normalized_comment_feature_set = generate_classifier_data_sets.extract_features(normalized_comment, normalized_comment, training_mode)
+                normalized_comment_feature_set_unigram = generate_classifier_data_sets.extract_feature_unigram(normalized_comment_unigram, training_mode)
+                normalized_comment_feature_set_bigram = generate_classifier_data_sets.extract_features_bigram(normalized_comment_bigram, training_mode)
+                normalized_comment_feature_set = generate_classifier_data_sets.extract_features(normalized_comment_unigram, normalized_comment_bigram, training_mode)
+                
+                
+                """
+                print("normalized comment unigram: ")
+                print(normalized_comment_unigram)
+                print("normalized comment bigram: ")
+                print(normalized_comment_bigram)
+                print("normalized_comment_feature_set_unigram: ")
+                print(normalized_comment_feature_set_unigram)
+                print("normalized_comment_feature_set_bigram: ")
+                print(normalized_comment_feature_set_bigram)
+                print("extract_features: ")
+                print(normalized_comment_feature_set)
+                exit()
+                """
                 probability_result = classifier.prob_classify(normalized_comment_feature_set)
                 
                 #Print statistics:

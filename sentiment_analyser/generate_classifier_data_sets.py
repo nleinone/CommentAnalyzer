@@ -184,6 +184,7 @@ def split_data(feature_set_positive, feature_set_negative, fold):
     
     test = feature_set_positive[:fold] + feature_set_negative[:fold]
     training = feature_set_positive[fold:] + feature_set_negative[fold:]
+    all_training_data = feature_set_positive + feature_set_negative
     
     training_and_test_data.append([test, training])
     
@@ -200,7 +201,7 @@ def split_data(feature_set_positive, feature_set_negative, fold):
         training = bottom_train_section + top_train_section
         training_and_test_data.append([test, training])
         
-    return training_and_test_data
+    return training_and_test_data, all_training_data
     
 def get_training_and_test_data(fold):
     '''Top function for training and test data parsing, shuffling and splitting'''
@@ -210,6 +211,6 @@ def get_training_and_test_data(fold):
     shuffle(feature_set_negative)
     
     #TEST DATA SPLIT:
-    training_and_test_data = split_data(feature_set_positive, feature_set_negative, fold)
+    training_and_test_data, all_training_data = split_data(feature_set_positive, feature_set_negative, fold)
     
-    return training_and_test_data
+    return training_and_test_data, all_training_data
