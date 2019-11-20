@@ -5,14 +5,17 @@ from preprocessing import preprocessor
 '''
 REFERENCES:
 
+Above link demonstrates the use of movie review data and nltk Naive Bayes classifier library:
 http://blog.chapagain.com.np/python-nltk-sentiment-analysis-on-movie-reviews-natural-language-processing-nlp/
-Above link demonstrates the use of movie review data and nltk Naive Bayes classifier library.
 
 Documentation for nltk Naive Bayes:
 https://www.nltk.org/_modules/nltk/classify/naivebayes.html
 
 Chapter from book:
 https://www.nltk.org/book/ch06.html
+
+Using collocations:
+https://streamhacker.com/2010/05/24/text-classification-sentiment-analysis-stopwords-collocations/
 
 '''
 
@@ -24,7 +27,10 @@ from nltk.corpus import stopwords
 from sys import exit
 import string 
 
-def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer, classifier_accuracy):
+from nltk.metrics.scores import (precision, recall)
+
+
+def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer, classifier_accuracy_values):
     
     prob_pos = probability_result.prob("pos")
     prob_neg = probability_result.prob("neg")
@@ -62,8 +68,25 @@ def print_statistics(probability_result, nb_classifier, normalized_comment_featu
     elif prob_neg >= 0.50:
         classification = 'Neutral'
     
+    #{'mean_accuracy': mean_nb_accuracy, 'mean_pos_mean_precision':mean_pos_mean_precision,'mean_pos_mean_recall':mean_pos_mean_recall,'mean_pos_mean_f_score':mean_pos_mean_f_score,'mean_neg_mean_precision':mean_neg_mean_precision,'mean_neg_mean_recall':mean_neg_mean_recall,'mean_neg_mean_f_score':mean_neg_mean_f_score}
+        
+    
+    print('Pos Avg Precision: {}'.format(classifier_accuracy_values['mean_pos_mean_precision'])) #High = Few false positives in pos
+    print('Pos Avg Recall: {}'.format(classifier_accuracy_values['mean_pos_mean_recall'])) #High = Few false negatives in pos
+    print('Pos Avg F-score: {}'.format(classifier_accuracy_values['mean_pos_mean_f_score']))
+
+    print('Neg Avg Precision: {}'.format(classifier_accuracy_values['mean_neg_mean_precision']))
+    print('Neg Avg Recall: {}'.format(classifier_accuracy_values['mean_neg_mean_recall']))
+    print('Neg Avg F-Score: {}'.format(classifier_accuracy_values['mean_neg_mean_f_score']))
+    
+    #nb_classifier.show_most_informative_features(20)
+    
+    print('Classifier accuracy: {}\n'.format(classifier_accuracy_values['mean_accuracy']))
+    
     print("\nClassification: {}\n".format(classification))
-    print('Classifier accuracy: {}\n'.format(classifier_accuracy))
+    
+    
+    
     print('************************************\n')
     
       
@@ -79,6 +102,8 @@ def divide_and_clean_reviews():
     for id in movie_reviews.fileids('neg'):
         words = movie_reviews.words(id)
         negative_reviews.append(words)
+    
+    
     
     training_mode = True
     
@@ -97,10 +122,16 @@ def divide_and_clean_reviews():
     normalized_reviews_pos_bigram = preprocessor.normalize_and_clean_comment(filt_pos_revs_bigram)
     
     '''STEMMING'''
-    #normalized_reviews_neg = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
-    #normalized_reviews_pos = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
-    #normalized_reviews_neg_bigram = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
-    #normalized_reviews_pos_bigram = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
+    normalized_reviews_neg = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
+    normalized_reviews_pos = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
+    normalized_reviews_neg_bigram = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
+    normalized_reviews_pos_bigram = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
+    
+    '''LEMMITIZATION'''
+    #normalized_reviews_neg = preprocessor.lemmitization(normalized_reviews_neg, training_mode)
+    #normalized_reviews_pos = preprocessor.lemmitization(normalized_reviews_pos, training_mode)
+    #normalized_reviews_neg_bigram = preprocessor.lemmitization(normalized_reviews_neg, training_mode)
+    #normalized_reviews_pos_bigram = preprocessor.lemmitization(normalized_reviews_pos, training_mode)
     
     return normalized_reviews_pos, normalized_reviews_neg, normalized_reviews_neg_bigram, normalized_reviews_pos_bigram
 
@@ -130,19 +161,19 @@ def extract_features_bigram(words_clean, training_mode):
     '''
     '''Extract bigram word features'''
     words_bigram = []
-    print("bigram 1")
+    #print("bigram 1")
     if training_mode:
         
         for i in iter(ngrams(words_clean, 2)):
             words_bigram.append(i)
     else:
-        print("bigram 2")
+    #    print("bigram 2")
         for i in iter(ngrams(words_clean[0], 2)):
-            print("bigram 3: {}".format(i))
+    #        print("bigram 3: {}".format(i))
             words_bigram.append(i)
     
-    print("bigram words: ")
-    print(words_bigram)
+    #print("bigram words: ")
+    #print(words_bigram)
     words_dictionary = {}
     
     try:
@@ -185,7 +216,9 @@ def create_word_feature_sets():
     
     for clean_words_uni, clean_words_bigram in zip(negative_reviews_uni, negative_reviews_bigram):
         feature_set_negative.append((extract_features(clean_words_uni, clean_words_bigram, training_mode), 'neg'))
-
+    
+    
+    
     return feature_set_positive, feature_set_negative
      
 def split_data(feature_set_positive, feature_set_negative, fold):
@@ -222,6 +255,9 @@ def get_training_and_test_data(fold):
     shuffle(feature_set_negative)
     
     #TEST DATA SPLIT:
+    #print("Len pos features: {}".format(len(feature_set_positive)))
+    #print("Len neg features: {}".format(len(feature_set_negative)))
+    
     training_and_test_data, all_training_data = split_data(feature_set_positive, feature_set_negative, fold)
     
     return training_and_test_data, all_training_data
