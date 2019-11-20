@@ -164,7 +164,7 @@ def stem_sentence(sentences, training_mode):
 
     return stemmed_sentences
 
-def lemmitization(sentences, training_mode):
+def lemmatization(sentences, training_mode):
     '''Remove suffixes (and other end components) from the words, returning only the root part of the word'''
     
     lemmed_sentences = []
@@ -175,7 +175,7 @@ def lemmitization(sentences, training_mode):
             single_comment = []
             for word in comment:
                 
-                lemmed_word = lemmer.lemmitize(word)
+                lemmed_word = lemmer.lemmatize(word)
                 single_comment.append(lemmed_word)
                 
             if len(single_comment) != 0:
@@ -184,11 +184,11 @@ def lemmitization(sentences, training_mode):
     else:
         single_comment = []
         for word in sentences:
-            lemmed_word = lemmer.lemmitize(word)
+            lemmed_word = lemmer.lemmatize(word)
             single_comment.append(lemmed_word)
             
         if len(single_comment) != 0:
             lemmed_sentences.append(single_comment)
   
-    return lemmitized_sentences
+    return lemmed_sentences
 

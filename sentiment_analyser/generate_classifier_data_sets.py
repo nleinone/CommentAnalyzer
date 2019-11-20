@@ -30,10 +30,18 @@ import string
 from nltk.metrics.scores import (precision, recall)
 
 
-def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, user_answer, classifier_accuracy_values):
+def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate):
     
     prob_pos = probability_result.prob("pos")
     prob_neg = probability_result.prob("neg")
+    #(user_name, time, bot_mood, bot_answer, user_answer):
+    
+    user_name = comment['user_name']
+    post_time = comment['time'] 
+    bot_mood = comment['bot_mood']
+    bot_answer = comment['bot_answer']
+    user_answer = comment['user_answer']
+    
     
     print('\n******* SENTENCE STATISTICS *******\n')
     print("Classified comment: {}".format(user_answer))
@@ -70,15 +78,15 @@ def print_statistics(probability_result, nb_classifier, normalized_comment_featu
     
     #{'mean_accuracy': mean_nb_accuracy, 'mean_pos_mean_precision':mean_pos_mean_precision,'mean_pos_mean_recall':mean_pos_mean_recall,'mean_pos_mean_f_score':mean_pos_mean_f_score,'mean_neg_mean_precision':mean_neg_mean_precision,'mean_neg_mean_recall':mean_neg_mean_recall,'mean_neg_mean_f_score':mean_neg_mean_f_score}
         
-    
-    print('Pos Avg Precision: {}'.format(classifier_accuracy_values['mean_pos_mean_precision'])) #High = Few false positives in pos
-    print('Pos Avg Recall: {}'.format(classifier_accuracy_values['mean_pos_mean_recall'])) #High = Few false negatives in pos
-    print('Pos Avg F-score: {}'.format(classifier_accuracy_values['mean_pos_mean_f_score']))
+    if cross_validate:
+        print('Pos Avg Precision: {}'.format(classifier_accuracy_values['mean_pos_mean_precision'])) #High = Few false positives in pos
+        print('Pos Avg Recall: {}'.format(classifier_accuracy_values['mean_pos_mean_recall'])) #High = Few false negatives in pos
+        print('Pos Avg F-score: {}'.format(classifier_accuracy_values['mean_pos_mean_f_score']))
 
-    print('Neg Avg Precision: {}'.format(classifier_accuracy_values['mean_neg_mean_precision']))
-    print('Neg Avg Recall: {}'.format(classifier_accuracy_values['mean_neg_mean_recall']))
-    print('Neg Avg F-Score: {}'.format(classifier_accuracy_values['mean_neg_mean_f_score']))
-    
+        print('Neg Avg Precision: {}'.format(classifier_accuracy_values['mean_neg_mean_precision']))
+        print('Neg Avg Recall: {}'.format(classifier_accuracy_values['mean_neg_mean_recall']))
+        print('Neg Avg F-Score: {}'.format(classifier_accuracy_values['mean_neg_mean_f_score']))
+            
     #nb_classifier.show_most_informative_features(20)
     
     print('Classifier accuracy: {}\n'.format(classifier_accuracy_values['mean_accuracy']))
@@ -122,16 +130,16 @@ def divide_and_clean_reviews():
     normalized_reviews_pos_bigram = preprocessor.normalize_and_clean_comment(filt_pos_revs_bigram)
     
     '''STEMMING'''
-    normalized_reviews_neg = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
-    normalized_reviews_pos = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
-    normalized_reviews_neg_bigram = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
-    normalized_reviews_pos_bigram = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
+    #normalized_reviews_neg = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
+    #normalized_reviews_pos = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
+    #normalized_reviews_neg_bigram = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
+    #normalized_reviews_pos_bigram = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
     
     '''LEMMITIZATION'''
-    #normalized_reviews_neg = preprocessor.lemmitization(normalized_reviews_neg, training_mode)
-    #normalized_reviews_pos = preprocessor.lemmitization(normalized_reviews_pos, training_mode)
-    #normalized_reviews_neg_bigram = preprocessor.lemmitization(normalized_reviews_neg, training_mode)
-    #normalized_reviews_pos_bigram = preprocessor.lemmitization(normalized_reviews_pos, training_mode)
+    normalized_reviews_neg = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
+    normalized_reviews_pos = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
+    normalized_reviews_neg_bigram = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
+    normalized_reviews_pos_bigram = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
     
     return normalized_reviews_pos, normalized_reviews_neg, normalized_reviews_neg_bigram, normalized_reviews_pos_bigram
 

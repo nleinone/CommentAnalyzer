@@ -16,8 +16,10 @@ if __name__ == '__main__':
     '''*** INITIAL CONFIGURATIONS ***'''
     print("Configuring classifiers...")
     
+    cross_validate = False
+    
     training_and_test_data, all_training_data = generate_classifier_data_sets.get_training_and_test_data(cross_validations_fold_ratio)
-    nb_classifier, average_values = configure_classifiers.configure_all(training_and_test_data, all_training_data, True)
+    nb_classifier, average_values = configure_classifiers.configure_all(training_and_test_data, all_training_data, cross_validate)
     
     classifier = nb_classifier
     classifier_accuracy_values = average_values
@@ -114,7 +116,7 @@ if __name__ == '__main__':
                 probability_result = classifier.prob_classify(normalized_comment_feature_set)
                 
                 #Print statistics:
-                generate_classifier_data_sets.print_statistics(probability_result, classifier, normalized_comment_feature_set, user_answer, classifier_accuracy_values)
+                generate_classifier_data_sets.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate)
     #Runtime stamp
     print("Runtime: {}\n".format(datetime.now() - datetime_start))
                 
