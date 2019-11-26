@@ -120,8 +120,8 @@ def divide_and_clean_reviews():
     filt_pos_revs = preprocessor.filter_stopwords(positive_reviews, training_mode, bigram)
     
     bigram = True
-    filt_pos_revs_bigram = preprocessor.filter_stopwords(negative_reviews, training_mode, bigram)
-    filt_neg_revs_bigram = preprocessor.filter_stopwords(positive_reviews, training_mode, bigram)
+    filt_pos_revs_bigram = preprocessor.filter_stopwords(positive_reviews, training_mode, bigram)
+    filt_neg_revs_bigram = preprocessor.filter_stopwords(negative_reviews, training_mode, bigram)
     
     normalized_reviews_neg = preprocessor.normalize_and_clean_comment(filt_neg_revs)
     normalized_reviews_pos = preprocessor.normalize_and_clean_comment(filt_pos_revs)
@@ -129,19 +129,60 @@ def divide_and_clean_reviews():
     normalized_reviews_neg_bigram = preprocessor.normalize_and_clean_comment(filt_neg_revs_bigram)
     normalized_reviews_pos_bigram = preprocessor.normalize_and_clean_comment(filt_pos_revs_bigram)
     
-    '''STEMMING'''
-    #normalized_reviews_neg = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
-    #normalized_reviews_pos = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
-    #normalized_reviews_neg_bigram = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
-    #normalized_reviews_pos_bigram = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
+    '''STEMMING:
+    Run 1:
+        
+    Pos Avg Precision: 0.8009370354133294
+    Pos Avg Recall: 0.951
+    Pos Avg F-score: 0.951
+    Neg Avg Precision: 0.9400973181887219
+    Neg Avg Recall: 0.763
+    Neg Avg F-Score: 0.763
+    Classifier accuracy: 0.857
+
+    Run 2:
     
-    '''LEMMITIZATION'''
-    normalized_reviews_neg = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
-    normalized_reviews_pos = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
-    normalized_reviews_neg_bigram = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
-    normalized_reviews_pos_bigram = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
+    Pos Avg Precision: 0.809267987243282
+    Pos Avg Recall: 0.954
+    Pos Avg F-score: 0.954
+    Neg Avg Precision: 0.944286728750227
+    Neg Avg Recall: 0.7750000000000001
+    Neg Avg F-Score: 0.7750000000000001
+    Classifier accuracy: 0.8644999999999999    
+    '''
     
-    return normalized_reviews_pos, normalized_reviews_neg, normalized_reviews_neg_bigram, normalized_reviews_pos_bigram
+    normalized_reviews_neg_stemmed = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
+    normalized_reviews_pos_stemmed = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
+    normalized_reviews_neg_bigram_stemmed = preprocessor.stem_sentence(normalized_reviews_neg_bigram, training_mode)
+    normalized_reviews_pos_bigram_stemmed = preprocessor.stem_sentence(normalized_reviews_pos_bigram, training_mode)
+    
+    '''LEMMATIZATION:
+    Run 1:
+    Pos Avg Precision: 0.7998738968059823
+    Pos Avg Recall: 0.96
+    Pos Avg F-score: 0.96
+    Neg Avg Precision: 0.9501827030961634
+    Neg Avg Recall: 0.7590000000000001
+    Neg Avg F-Score: 0.7590000000000001
+    Classifier accuracy: 0.8595
+        
+    Run 2:
+    Pos Avg Precision: 0.8093190386132699
+    Pos Avg Recall: 0.9630000000000001
+    Pos Avg F-score: 0.9630000000000001
+    Neg Avg Precision: 0.9545216754753628
+    Neg Avg Recall: 0.773
+    Neg Avg F-Score: 0.773
+    Classifier accuracy: 0.868
+    '''
+    #normalized_reviews_neg_lem = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
+    #normalized_reviews_pos_lem = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
+    #normalized_reviews_neg_bigram_lem = preprocessor.lemmatization(normalized_reviews_neg_bigram, training_mode)
+    #normalized_reviews_pos_bigram_lem = preprocessor.lemmatization(normalized_reviews_pos_bigram, training_mode)
+    
+    #return normalized_reviews_pos_lem, normalized_reviews_neg_lem, normalized_reviews_neg_bigram_lem, normalized_reviews_pos_bigram_lem
+    
+    return normalized_reviews_pos_stemmed, normalized_reviews_neg_stemmed, normalized_reviews_neg_bigram_stemmed, normalized_reviews_pos_bigram_stemmed
 
 def extract_feature_unigram(words_clean, training_mode):
     '''Extract unigram word features'''
@@ -160,28 +201,16 @@ def extract_feature_unigram(words_clean, training_mode):
     return words_dictionary
     
 def extract_features_bigram(words_clean, training_mode):
-    '''
-    words_ng = []
-    for item in iter(ngrams(words, n)):
-        words_ng.append(item)
-    words_dictionary = dict([word, True] for word in words_ng)    
-    return words_dictionary
-    '''
     '''Extract bigram word features'''
+    
     words_bigram = []
-    #print("bigram 1")
     if training_mode:
         
         for i in iter(ngrams(words_clean, 2)):
             words_bigram.append(i)
     else:
-    #    print("bigram 2")
         for i in iter(ngrams(words_clean[0], 2)):
-    #        print("bigram 3: {}".format(i))
             words_bigram.append(i)
-    
-    #print("bigram words: ")
-    #print(words_bigram)
     words_dictionary = {}
     
     try:
@@ -263,9 +292,6 @@ def get_training_and_test_data(fold):
     shuffle(feature_set_negative)
     
     #TEST DATA SPLIT:
-    #print("Len pos features: {}".format(len(feature_set_positive)))
-    #print("Len neg features: {}".format(len(feature_set_negative)))
-    
     training_and_test_data, all_training_data = split_data(feature_set_positive, feature_set_negative, fold)
     
     return training_and_test_data, all_training_data

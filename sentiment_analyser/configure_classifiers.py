@@ -92,6 +92,8 @@ def configure_all(training_and_test_data, all_training_data, cv):
             nb_accuracies.append(nb_accuracy)
             counter += 1
             
+            print("Accuracy: {}".format(nb_accuracy))
+            
             pos_precision, pos_recall, pos_f_score, neg_precision, neg_recall, neg_f_score = calculate_precision_and_recall(nb_classifier, train_data, test_data)
             
             pos_mean_precision.append(pos_precision)

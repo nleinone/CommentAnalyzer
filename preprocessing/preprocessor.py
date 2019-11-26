@@ -32,9 +32,9 @@ def filter_stopwords(tokenized_answer, training_mode, bigram):
     '''Filter stopwords'''
     
     #https://streamhacker.com/2010/05/24/text-classification-sentiment-analysis-stopwords-collocations/
-    not_filtered = ['above', 'below', 'off', 'over', 'under', 'more', 'most', 'such', 'no', 'nor', 'not', 'only', 'so', 'than', 'too', 'very', 'just', 'but']
-    #not_filtered = ["not", "nor", "no"]
-
+    #not_filtered = ['above', 'below', 'off', 'over', 'under', 'more', 'most', 'such', 'no', 'nor', 'not', 'only', 'so', 'than', 'too', 'very', 'just', 'but']
+    not_filtered = ["not", "nor", "no"]
+    #not_filtered = []
     stop_words = stopwords.words('english')
     
     if bigram:
