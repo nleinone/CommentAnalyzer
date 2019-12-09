@@ -182,11 +182,7 @@ def divide_and_clean_reviews():
     
     #Lemmatized:
     #return normalized_reviews_pos_lem, normalized_reviews_neg_lem, normalized_reviews_neg_bigram_lem, normalized_reviews_pos_bigram_lem
-    
-    #Without any:
     return normalized_reviews_pos, normalized_reviews_neg, normalized_reviews_neg_bigram, normalized_reviews_pos_bigram
-    
-    #Stemmed:
     #return normalized_reviews_pos_stemmed, normalized_reviews_neg_stemmed, normalized_reviews_neg_bigram_stemmed, normalized_reviews_pos_bigram_stemmed
 
 def extract_feature_unigram(words_clean, training_mode):
