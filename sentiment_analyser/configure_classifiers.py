@@ -86,6 +86,8 @@ def configure_all(training_and_test_data, all_training_data, cv):
             
             train_data = test_train_data[1]
             test_data = test_train_data[0]
+            #print(len(train_data))
+            #print(train_data[0])
             
             nb_classifier = NaiveBayesClassifier.train(train_data)
             nb_accuracy = classify.accuracy(nb_classifier, test_data)
