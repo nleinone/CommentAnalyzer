@@ -175,16 +175,16 @@ def divide_and_clean_reviews():
     Neg Avg F-Score: 0.773
     Classifier accuracy: 0.868
     '''
-    #normalized_reviews_neg_lem = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
-    #normalized_reviews_pos_lem = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
-    #normalized_reviews_neg_bigram_lem = preprocessor.lemmatization(normalized_reviews_neg_bigram, training_mode)
-    #normalized_reviews_pos_bigram_lem = preprocessor.lemmatization(normalized_reviews_pos_bigram, training_mode)
+    normalized_reviews_neg_lem = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
+    normalized_reviews_pos_lem = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
+    normalized_reviews_neg_bigram_lem = preprocessor.lemmatization(normalized_reviews_neg_bigram, training_mode)
+    normalized_reviews_pos_bigram_lem = preprocessor.lemmatization(normalized_reviews_pos_bigram, training_mode)
     
     #Lemmatized:
-    #return normalized_reviews_pos_lem, normalized_reviews_neg_lem, normalized_reviews_neg_bigram_lem, normalized_reviews_pos_bigram_lem
+    return normalized_reviews_pos_lem, normalized_reviews_neg_lem, normalized_reviews_neg_bigram_lem, normalized_reviews_pos_bigram_lem
     
     #Without any:
-    return normalized_reviews_pos, normalized_reviews_neg, normalized_reviews_neg_bigram, normalized_reviews_pos_bigram
+    #return normalized_reviews_pos, normalized_reviews_neg, normalized_reviews_neg_bigram, normalized_reviews_pos_bigram
     
     #Stemmed:
     #return normalized_reviews_pos_stemmed, normalized_reviews_neg_stemmed, normalized_reviews_neg_bigram_stemmed, normalized_reviews_pos_bigram_stemmed
@@ -252,12 +252,12 @@ def create_word_feature_sets():
     feature_set_positive = []
     
     for clean_words_uni, clean_words_bigram in zip(positive_reviews_uni, positive_reviews_bigram):
-        feature_set_positive.append((extract_features(clean_words_uni, clean_words_bigram, training_mode), 'pos'))
+        feature_set_positive.append((extract_feature_unigram(clean_words_uni, training_mode), 'pos'))
 
     feature_set_negative = []
     
     for clean_words_uni, clean_words_bigram in zip(negative_reviews_uni, negative_reviews_bigram):
-        feature_set_negative.append((extract_features(clean_words_uni, clean_words_bigram, training_mode), 'neg'))
+        feature_set_negative.append((extract_feature_unigram(clean_words_uni, training_mode), 'neg'))
     
     
     
