@@ -55,11 +55,11 @@ def calculate_precision_and_recall(nb_classifier, train_data, test_data):
     
     pos_precision = precision(reference_sets['pos'], test_sets['pos'])
     pos_recall = recall(reference_sets['pos'], test_sets['pos'])
-    pos_f_score = recall(reference_sets['pos'], test_sets['pos'])
+    pos_f_score = f_measure(reference_sets['pos'], test_sets['pos'])
     
     neg_precision = precision(reference_sets['neg'], test_sets['neg'])
     neg_recall = recall(reference_sets['neg'], test_sets['neg'])
-    neg_f_score = recall(reference_sets['neg'], test_sets['neg'])
+    neg_f_score = f_measure(reference_sets['neg'], test_sets['neg'])
     
     return pos_precision, pos_recall, pos_f_score, neg_precision, neg_recall, neg_f_score
 
