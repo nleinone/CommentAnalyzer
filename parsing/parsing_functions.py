@@ -36,12 +36,14 @@ def distinguish_information(file_line):
     
     return dict
     
-def convert_file_to_list(file_count, file_name):
+def convert_file_to_list(file_count, file_name, number_of_lines_processed):
     '''Add lines in list and return that list. Cannot exceed the max_line_amount (100)'''
     lines_list = []
-    counter = 0
+    counter = number_of_lines_processed
     
-    with open('././docs/' + file_name, 'r') as file:
+    with open('././docs/' + file_name) as file:
+        file.seek(number_of_lines_processed)
+        #data = file.readlines(file_count - number_of_lines_processed)
         for line in file:
             lines_list.append(line)
             if counter == file_count:
@@ -52,19 +54,28 @@ def convert_file_to_list(file_count, file_name):
     
     return lines_list
         
-def count_file_lines(csv_file_names):
+def count_remaining_file_lines(file_name, number_of_lines_processed, max_line_count):
     '''Count, return, and print file lines'''
-    max_line_amount = 100
-    counter = 0
-    for file_name in csv_file_names:
-        with open('././docs/' + file_name, 'r') as file:
-            for line in file:
-                if counter == max_line_amount:
-                    print('Max counter limit exceeded ({})'.format(max_line_amount))
-                    break
-                counter += 1
-        file.close()
+
+    counter = number_of_lines_processed
     
+    #print("test start counting")
+    #print("line count: {}".format(counter))
+    
+    with open('././docs/' + file_name) as file:
+        file.seek(number_of_lines_processed)
+        #data = file.readlines(max_line_amount)
+        
+        for line in file:
+            #print(line)
+            if counter == number_of_lines_processed + max_line_count:
+                print('Max counter limit exceeded ({})'.format(max_line_count))
+                break
+            counter += 1
+    file.close()
+    
+    #print("test end counting")
+    #print("line count: {}".format(counter))
     return counter
 
 def fetch_document_names():
