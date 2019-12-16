@@ -27,10 +27,25 @@ from nltk.corpus import stopwords
 from sys import exit
 import string 
 
-from nltk.metrics.scores import (precision, recall)
+from nltk.metrics.scores import precision, recall, f_measure
 
+import csv
 
-def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate):
+def save_to_csv(user_name, post_time, bot_mood, bot_answer, user_answer, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed):
+    
+    
+    with open('./results/results_{}.csv'.format(number_of_file_chunks_processed), 'a', newline='') as file:
+        writer = csv.writer(file)
+        if save_counter == 0:
+            writer.writerow(["Username", "Timestamp", "Bot mood", 'Bot answer', 'User answer', 'Negative probability', 'Positive probability', 'Classification'])
+        else:
+            writer.writerow([user_name, post_time, bot_mood, bot_answer, user_answer, prob_neg, prob_pos, classification])
+    
+    save_counter = 1
+    return save_counter
+    
+    
+def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed):
     
     prob_pos = probability_result.prob("pos")
     prob_neg = probability_result.prob("neg")
@@ -42,12 +57,11 @@ def print_statistics(probability_result, nb_classifier, normalized_comment_featu
     bot_answer = comment['bot_answer']
     user_answer = comment['user_answer']
     
-    
-    print('\n******* SENTENCE STATISTICS *******\n')
-    print("Classified comment: {}".format(user_answer))
-    print("Classified comment word set: {}".format(normalized_comment_feature_set.keys()))
-    print("Probability for negative sentiment: {}".format(prob_neg) )   
-    print("Probability for positive sentiment: {}".format(prob_pos))
+    #print('\n******* SENTENCE STATISTICS *******\n')
+    #print("Classified comment: {}".format(user_answer))
+    #print("Classified comment word set: {}".format(normalized_comment_feature_set.keys()))
+    #print("Probability for negative sentiment: {}".format(prob_neg) )   
+    #print("Probability for positive sentiment: {}".format(prob_pos))
 
     #Classification axis:'
     
@@ -79,25 +93,24 @@ def print_statistics(probability_result, nb_classifier, normalized_comment_featu
     #{'mean_accuracy': mean_nb_accuracy, 'mean_pos_mean_precision':mean_pos_mean_precision,'mean_pos_mean_recall':mean_pos_mean_recall,'mean_pos_mean_f_score':mean_pos_mean_f_score,'mean_neg_mean_precision':mean_neg_mean_precision,'mean_neg_mean_recall':mean_neg_mean_recall,'mean_neg_mean_f_score':mean_neg_mean_f_score}
         
     if cross_validate:
-        print('Pos Avg Precision: {}'.format(classifier_accuracy_values['mean_pos_mean_precision'])) #High = Few false positives in pos
-        print('Pos Avg Recall: {}'.format(classifier_accuracy_values['mean_pos_mean_recall'])) #High = Few false negatives in pos
-        print('Pos Avg F-score: {}'.format(classifier_accuracy_values['mean_pos_mean_f_score']))
+        #print('Pos Avg Precision: {}'.format(classifier_accuracy_values['mean_pos_mean_precision'])) #High = Few false positives in pos
+        #print('Pos Avg Recall: {}'.format(classifier_accuracy_values['mean_pos_mean_recall'])) #High = Few false negatives in pos
+        #print('Pos Avg F-score: {}'.format(classifier_accuracy_values['mean_pos_mean_f_score']))
 
-        print('Neg Avg Precision: {}'.format(classifier_accuracy_values['mean_neg_mean_precision']))
-        print('Neg Avg Recall: {}'.format(classifier_accuracy_values['mean_neg_mean_recall']))
-        print('Neg Avg F-Score: {}'.format(classifier_accuracy_values['mean_neg_mean_f_score']))
-            
+        #print('Neg Avg Precision: {}'.format(classifier_accuracy_values['mean_neg_mean_precision']))
+        #print('Neg Avg Recall: {}'.format(classifier_accuracy_values['mean_neg_mean_recall']))
+        #print('Neg Avg F-Score: {}'.format(classifier_accuracy_values['mean_neg_mean_f_score']))
+        pass
+        
     #nb_classifier.show_most_informative_features(20)
+    #print('Classifier accuracy: {}\n'.format(classifier_accuracy_values['mean_accuracy']))
+    #print("\nClassification: {}\n".format(classification))
+    #print('************************************\n')
     
-    print('Classifier accuracy: {}\n'.format(classifier_accuracy_values['mean_accuracy']))
+    #SAVE RESULTS TO CSV FILE: /sentiment_analyzer/classification_results/results.txt
+    save_counter = save_to_csv(user_name, post_time, bot_mood, bot_answer, user_answer, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed)
+    return save_counter
     
-    print("\nClassification: {}\n".format(classification))
-    
-    
-    
-    print('************************************\n')
-    
-      
 def divide_and_clean_reviews():
     """Filter stopwords from uni and bigram reviews, lower all cases, and remove punctuations. Optionally use stemming (commented)"""
 
