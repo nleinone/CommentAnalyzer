@@ -5,19 +5,28 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer 
 
-
-'''Pointwise mutual information:
-   https://towardsdatascience.com/feature-engineering-with-nltk-for-nlp-and-python-82f493a937a0 
 '''
-'''http://www.nltk.org/howto/collocations.html'''
+REFERENCES:
+
+Pointwise mutual information:
+   https://towardsdatascience.com/feature-engineering-with-nltk-for-nlp-and-python-82f493a937a0 
+
+Information and examples about sentiment analysis, bigrams and collocations:
+https://streamhacker.com/2010/05/24/text-classification-sentiment-analysis-stopwords-collocations/
+   
+Nltk Book chapter about collocations:
+http://www.nltk.org/howto/collocations.html
+
+'''
+
 from nltk.collocations import *
 import string
 
 def normalize_and_clean_comment(stopword_filtered_comment):
     """Make all words lowercase and clean words which are not alphabetic"""
-    
+
     cleaned_comment = []
-    
+
     for comment in stopword_filtered_comment:
         single_comment = []
         for word in comment:
@@ -25,22 +34,22 @@ def normalize_and_clean_comment(stopword_filtered_comment):
                 single_comment.append(word.lower())
         if len(single_comment) != 0:
             cleaned_comment.append(single_comment)
-    
+
     return cleaned_comment
-    
+
 def filter_stopwords(tokenized_answer, training_mode, bigram):
     '''Filter stopwords'''
-    
-    #https://streamhacker.com/2010/05/24/text-classification-sentiment-analysis-stopwords-collocations/
+
     #not_filtered = ['above', 'below', 'off', 'over', 'under', 'more', 'most', 'such', 'no', 'nor', 'not', 'only', 'so', 'than', 'too', 'very', 'just', 'but']
     not_filtered = ["not", "nor", "no"]
     #not_filtered = []
+
     stop_words = stopwords.words('english')
-    
+
     if bigram:
-        
+
         stop_words = set(stopwords.words('english')) - set(not_filtered)   
-    
+
     stopword_filtered_answer = []
 
     if training_mode:
@@ -51,7 +60,7 @@ def filter_stopwords(tokenized_answer, training_mode, bigram):
                     single_comment.append(word)
             if len(single_comment) != 0:
                 stopword_filtered_answer.append(single_comment)
-    
+
     else:
         single_comment = []
         for word in tokenized_answer:
@@ -59,9 +68,9 @@ def filter_stopwords(tokenized_answer, training_mode, bigram):
                 single_comment.append(word)
         if len(single_comment) != 0:
             stopword_filtered_answer.append(single_comment)
-    
+
     #normalized_filtered_answer = stopword_filtered_answer
-    
+
     '''
     if training_mode and bigram:
         print("len comment:{}".format(len(normalized_filtered_answer)))
@@ -121,38 +130,35 @@ def filter_stopwords(tokenized_answer, training_mode, bigram):
         #print(normalized_filtered_answer_bigram)    
         return normalized_filtered_answer_bigram
     '''    
-    
+
     return stopword_filtered_answer
-    
+
 def tokenize_comment(user_answer):
     '''Tokenize user answer'''
-    
-    ##0.7795 
-    #0.7835
-    #0.7849
-    #0.787
+
     #TreewordBankTokenizer
     tokenized_answer = nltk.word_tokenize(user_answer.lower())
-    
+
     #tokenized_answer = nltk.wordpunct_tokenize(user_answer)
     return tokenized_answer
-    
+
 def stem_sentence(sentences, training_mode):
     '''Remove suffixes (and other end components) from the words, returning only the root part of the word'''
+
     stemmed_sentences = []
     stemmer = PorterStemmer() 
-        
+
     if training_mode:
         for comment in sentences:
             single_comment = []
             for word in comment:
-                
+
                 stemmed_word = stemmer.stem(word)
                 single_comment.append(stemmed_word)
-                
+
             if len(single_comment) != 0:
                 stemmed_sentences.append(single_comment)
-    
+
     else:
         single_comment = []
         for word in sentences:
@@ -166,29 +172,28 @@ def stem_sentence(sentences, training_mode):
 
 def lemmatization(sentences, training_mode):
     '''Remove suffixes (and other end components) from the words, returning only the root part of the word'''
-    
+
     lemmed_sentences = []
     lemmer = WordNetLemmatizer() 
-    
+
     if training_mode:
         for comment in sentences:
             single_comment = []
             for word in comment:
-                
+
                 lemmed_word = lemmer.lemmatize(word)
                 single_comment.append(lemmed_word)
-                
+
             if len(single_comment) != 0:
                 lemmed_sentences.append(single_comment)
-    
+
     else:
         single_comment = []
         for word in sentences:
             lemmed_word = lemmer.lemmatize(word)
             single_comment.append(lemmed_word)
-            
+
         if len(single_comment) != 0:
             lemmed_sentences.append(single_comment)
-  
-    return lemmed_sentences
 
+    return lemmed_sentences
