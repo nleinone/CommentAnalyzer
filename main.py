@@ -90,18 +90,17 @@ if __name__ == '__main__':
                     is_header = 3
 
                 information_dictionary, keys = parsing_functions.distinguish_information(file_line, is_header, keys)
-                information_collection.append(information_dictionary)
+                
+                
+                if (len(information_dictionary) == len(keys)):
+                    information_collection.append(information_dictionary)
                 line_counter = line_counter + 1
+            
             all_comments = parsing_functions.separate_comments_by_bot_identity(information_collection, keys)
             save_counter = 0
             
-            print("comment count: " + str(len(all_comments)) + "\n")
-            
             sum = 0
-            for i in all_comments:
-                sum = sum + len(i)
-            print("count of all comments: " + str(sum) + "\n")
-            
+
             for comment_set in all_comments:
             
                 try:
