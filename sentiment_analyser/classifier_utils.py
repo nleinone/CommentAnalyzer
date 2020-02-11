@@ -26,33 +26,93 @@ from nltk import classify
 from nltk.corpus import stopwords
 from sys import exit
 import string 
-
+import sys
 from nltk.metrics.scores import precision, recall, f_measure
 
 import csv
 
+#REFERENCES:
+#https://realpython.com/python-csv/
+
+def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys):
+    
+    
+    identity_averages_dict = {}
+    avg_values = []
+    
+    
+    
+    
+    
+    for identity in discovered_identities:
+        print("\nCurrent id: " + str(identity))
+        count_identity_amount = 1
+        sum_of_values_positive = 0
+        sum_of_values_negative = 0
+        
+        with open('./results/individual_file_results/results_{}.csv'.format(number_of_file_chunks_processed)) as file:
+            csv_reader = csv.reader(file, delimiter=',')
+            line_count = 0
+            for row in csv_reader:
+                #ingore headers_
+                try:
+                    float(row[-2])
+                except ValueError:
+                    continue
+                else:
+                    #ID key position after added positive, negative, and classification column:
+                    if row[-4] == identity:
+                        
+                        count_identity_amount += 1
+                        positive_prob = row[-2]
+                        print("\nPos: " + str(positive_prob))
+                        negative_prob = row[-3]
+                        print("\nNeg: " + str(negative_prob))
+                        #print("\nRow:" + str(row))
+                        sum_of_values_positive = sum_of_values_positive + float(positive_prob)
+                        sum_of_values_negative = sum_of_values_negative + float(negative_prob)
+                        
+                        print("\nsum_of_values_positive: " + str(sum_of_values_positive))
+                        print("\nsum_of_values_negative: " + str(sum_of_values_negative))
+                        
+                        print("\nRow[-4]: " + str(row[-4]))
+                        
+                line_count += 1
+            print("\nLinecount: " + str(line_count))
+            
+            #Negative average, Positive average, amount of samples
+            identity_averages_dict[identity] = [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount]
+        
+    
+    print("\nidentity_averages: " + str(identity_averages_dict))
+    
+                    
+            
+
 def save_to_csv(values, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed):
     ''''''
     #Add other information:'
-    row_info = keys
+    row_info = keys.copy()
     row_info.append('Negative probability')
     row_info.append('Positive probability')
     row_info.append('Classification')
-    print("row_info: " + str(row_info))
+    #print("row_info: " + str(row_info))
 
     #Add other values:
     values.append(prob_neg)
     values.append(prob_pos)
     values.append(classification)
-    print("values: " + str(values))
+    #print("values: " + str(values))
 
-    with open('./results/results_{}.csv'.format(number_of_file_chunks_processed), 'a', newline='') as file:
+    with open('./results/individual_file_results/results_{}.csv'.format(number_of_file_chunks_processed), 'a', newline='') as file:
         writer = csv.writer(file)
         if save_counter == 0:
             writer.writerow(row_info)
         else:
             writer.writerow(values)
     
+    
+    file.close()
     save_counter = 1
     return save_counter
      

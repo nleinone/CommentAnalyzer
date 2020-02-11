@@ -1,10 +1,15 @@
 import os
 import sys
+
+#REFERENCES:
+#https://stackoverflow.com/questions/2081836/reading-specific-lines-only
+#https://stackoverflow.com/questions/1767513/read-first-n-lines-of-a-file-in-python
+
 def separate_comments_by_bot_identity(information_collection, keys):
     """Return different bot identities as a list of lists. For example: [happy_bot_comments, happysad_bot_comments, sad_bot_comments, neutral_bot_comments, hello_bot_comments]"""
 
     bot_id_header = keys[-1]
-    discovered_id = []
+    discovered_identities = []
     comment_list = []
     identities_list = []
 
@@ -12,11 +17,11 @@ def separate_comments_by_bot_identity(information_collection, keys):
     for comment in information_collection:
         try:
             current_id = comment[bot_id_header]
-            if current_id not in discovered_id:
-                discovered_id.append(current_id)
+            if current_id not in discovered_identities:
+                discovered_identities.append(current_id)
         except:
             continue
-    for id in discovered_id:
+    for id in discovered_identities:
         for comment in information_collection:
             try:
                 if comment[bot_id_header] == id:
@@ -27,7 +32,7 @@ def separate_comments_by_bot_identity(information_collection, keys):
         comment_list = []
         
     #Exclude header row from the comments
-    return identities_list[1:]
+    return identities_list[1:], discovered_identities
 
 def distinguish_information(file_line, is_header, keys):
     '''Convert line to dictionary with following keyes: user_name, time, bot_identity, bot_answer, user_answer'''
@@ -57,43 +62,73 @@ def distinguish_information(file_line, is_header, keys):
     #Bot identity header:
     return dict, keys
 
-def convert_file_to_list(file_count, file_name, number_of_lines_processed, max_line_amount):
+def convert_file_to_list(line_count, file_name, number_of_lines_processed):
     '''Add lines in list and return that list. Cannot exceed the max_line_amount (100)'''
     lines_list = []
-    counter = number_of_lines_processed
+    counter = 0
 
     with open('././docs/' + file_name) as file:
         file.seek(number_of_lines_processed)
+        for i in range(line_count):
+            try:
+                line = next(file)
+                lines_list.append(line)
+                counter += 1
+            except Exception as e:
+                file.close()
+                print("Error: " + str(e))
+                return lines_list
         #data = file.readlines(file_count - number_of_lines_processed)
-        for line in file:
-            lines_list.append(line)
+        #for line in file:
+            #lines_list.append(line)
             #print("line: " + line)
-            if counter == file_count:
+            #if counter == line_count:
                 #print('Max counter limit exceeded ({})'.format(max_line_amount))
-                break
-            counter += 1
+                #break
+            #counter += 1
 
     file.close()
-
     return lines_list
 
+def file_line_counter(file):
+    counter = 0
+    for line in file:
+        counter += 1
+    print("total line count: " + str(counter))
+    
 def count_remaining_file_lines(file_name, number_of_lines_processed, max_line_count):
     '''Count, return, and print file lines'''
-
-    counter = number_of_lines_processed
-
+    
+    #counter = number_of_lines_processed
+    counter = 0
+    #print("\n number_of_lines_processed: " + str(number_of_lines_processed))
+    #print("\n counter: " + str(counter))
     with open('././docs/' + file_name) as file:
         file.seek(number_of_lines_processed)
-        #data = file.readlines(max_line_amount)
-
-        for line in file:
-            if counter == number_of_lines_processed + max_line_count:
-                print('Max counter limit exceeded ({})'.format(max_line_count))
-                break
-            counter += 1
-
-    file.close()
-
+        for i in range(max_line_count):
+            try:
+                #print(str(i))
+                line = next(file)
+                counter += 1
+                #print("\n" + line)
+                #print("Counter: " + str(counter))
+                #file.seek(number_of_lines_processed) #Seek 0
+                #line = file.readline()
+                #print("\n line " + str(i) + ":" + " " + str(line))
+            except Exception as e:
+                file.close()
+                #print("Error: " + str(e))
+                return counter
+            #data = file.readlines(max_line_amount)
+            
+            #for line in file:
+                #print("\n line " + str(counter) + ":" + " " + str(line))
+                #if counter == max_line_count:
+                    #print('Max counter limit exceeded ({})'.format(max_line_count))
+                    #break
+    
+    
+    #print("\n count_remaining_file_lines: counter: " + str(counter))
     return counter
 
 def fetch_document_names():

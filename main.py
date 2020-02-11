@@ -11,7 +11,8 @@ if __name__ == '__main__':
     '''Main function for the script.
     Takes the following arguments as cmd line arguments (defaults declared):
     
-    Cross_validate_classifier == 1
+    Cross_validate_classifier == 0
+    Analysed_text_column_location = -3 (3rd last by default)
     max_line_count = 100
     
     '''
@@ -31,15 +32,24 @@ if __name__ == '__main__':
     except Exception as e:
         print("Cross validate: False")
         cross_validate = False 
-
+    
     try:
-        max_line_count = sys.argv[2]
-        max_line_count = int(max_line_count)
-        print("Maximum line process count: " + str(max_line_count))
+        Analysed_text_column_location = sys.argv[2]
+        Analysed_text_column_location = int(Analysed_text_column_location)
+        print("Analysed_text_column_location: " + str(Analysed_text_column_location))
     except Exception as e:
-        print("Maximum line process count: 100")
-        max_line_count = 100
-
+        print("Analysed_text_column_location: -3 (3rd last)")
+        Analysed_text_column_location = -3
+    
+    #In case of big data processing is needed:    
+    #try:
+    #    max_line_count = sys.argv[3]
+    #    max_line_count = int(max_line_count)
+    #    print("Maximum line process count: " + str(max_line_count))
+    #except Exception as e:
+    #    print("Maximum line process count: 100")
+    #    max_line_count = 100
+    max_line_count = 9999
     #Runtime stamp
     datetime_start = datetime.now()
 
@@ -61,23 +71,30 @@ if __name__ == '__main__':
 
     '''**** FILE PARSING PROCESS STARTS HERE****'''
     csv_file_names = parsing_functions.fetch_document_names()
-    number_of_file_chunks_processed = 0
-    line_counter = 0
-    lines_left_to_process = True
+    
+    
+    
     keys = []
 
     for file_name in csv_file_names:    
+        lines_left_to_process = True
+        number_of_file_chunks_processed = 0
+        line_counter = 0
         while(lines_left_to_process):
             #Variables
             information_collection = []
 
             '''BIG DATA PARSING'''
-            #Count file lines
+            #print("\n number_of_lines_processed: " + str(number_of_lines_processed))
+            #Count file lines, should be either max_line_count (9999) or all remaining lines which is < 9999
             line_count = parsing_functions.count_remaining_file_lines(file_name, number_of_lines_processed, max_line_count)
+            #print("\nMain: line_count: " + str(line_count))
+            
 
             #Convert file lines to list (Max 100)
-            file_lines_list = parsing_functions.convert_file_to_list(line_count, file_name, number_of_lines_processed, max_line_count)
+            file_lines_list = parsing_functions.convert_file_to_list(line_count, file_name, number_of_lines_processed)
             number_of_lines_processed += line_count
+            #print("\nMain: number_of_lines_processed: " + str(number_of_lines_processed))
             
             #Distinguish information from file line (For example user_name, time, bot_mood, bot_answer, user_answer):
             for file_line in file_lines_list:
@@ -96,30 +113,35 @@ if __name__ == '__main__':
                     information_collection.append(information_dictionary)
                 line_counter = line_counter + 1
             
-            all_comments = parsing_functions.separate_comments_by_bot_identity(information_collection, keys)
+            all_comments, discovered_identities = parsing_functions.separate_comments_by_bot_identity(information_collection, keys)
             save_counter = 0
             
             sum = 0
 
             for comment_set in all_comments:
-            
-                try:
+                
+                #try:
                     #Bot identity and free text location
-                    first_comment = comment_set[1]
-                    identity = first_comment[keys[2]]
-                    print('Processing {} bot answer data...'.format(identity))
+                #    first_comment = comment_set[1]
+                #    identity = first_comment[keys[2]]
+                #    print('Processing {} bot answer data...'.format(identity))
 
-                except:
-                    continue
+                #except:
+                #    continue
 
                 '''*** PARSING ENDS HERE ***'''
 
                 '''*** NATURAL LANGUAGE PREPROCESSING STARTS HERE***'''
                 #Preprocess user comments one bot mood data set at time:
                 for comment in comment_set[1:]:
-                    training_mode = False
-                    user_answer = comment[keys[4]]
+                    #Document structure:
+                    #From last column [-1]: Chatbot Identity:
+                    #                 [-2]: Prolific ID
+                    #                 [-3]: Free description question (Default location)
 
+                    training_mode = False
+                    user_answer = comment[keys[Analysed_text_column_location]]
+                    
                     #Tokenize comment
                     tokenized_comment = preprocessor.tokenize_comment(user_answer)
 
@@ -163,13 +185,21 @@ if __name__ == '__main__':
 
                     probability_result = classifier.prob_classify(normalized_comment_feature_set)
 
+                    
+                    #Create results file:
                     save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys)
-
+                    
+                    #Create conclusive results from previously created results file:
+                    classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys)
             number_of_file_chunks_processed += 1
 
             if line_count < max_line_count:
+                lines_left_to_process = False
+                line_count = 0
                 save_counter = 0
                 break
+            else:
+                line_count = 0
 
     #Runtime stamp
     print("Runtime: {}\n".format(datetime.now() - datetime_start))
