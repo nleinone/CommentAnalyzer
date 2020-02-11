@@ -1,7 +1,7 @@
 from random import shuffle
 from nltk import ngrams
 from preprocessing import preprocessor
-
+import os.path
 '''
 REFERENCES:
 
@@ -34,62 +34,80 @@ import csv
 #REFERENCES:
 #https://realpython.com/python-csv/
 
-def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys):
-    
+def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, filename, file_name_og):
     
     identity_averages_dict = {}
     avg_values = []
     
-    
-    
-    
-    
     for identity in discovered_identities:
-        print("\nCurrent id: " + str(identity))
+        #print("\nCurrent id: " + str(identity))
         count_identity_amount = 1
         sum_of_values_positive = 0
         sum_of_values_negative = 0
         
-        with open('./results/individual_file_results/results_{}.csv'.format(number_of_file_chunks_processed)) as file:
+        with open(filename) as file:
             csv_reader = csv.reader(file, delimiter=',')
             line_count = 0
             for row in csv_reader:
-                #ingore headers_
+                line_count += 1
+                #print(line_count)
+                #ingore headers
                 try:
-                    float(row[-2])
-                except ValueError:
-                    continue
-                else:
                     #ID key position after added positive, negative, and classification column:
                     if row[-4] == identity:
                         
                         count_identity_amount += 1
                         positive_prob = row[-2]
-                        print("\nPos: " + str(positive_prob))
                         negative_prob = row[-3]
-                        print("\nNeg: " + str(negative_prob))
-                        #print("\nRow:" + str(row))
                         sum_of_values_positive = sum_of_values_positive + float(positive_prob)
                         sum_of_values_negative = sum_of_values_negative + float(negative_prob)
-                        
-                        print("\nsum_of_values_positive: " + str(sum_of_values_positive))
-                        print("\nsum_of_values_negative: " + str(sum_of_values_negative))
-                        
-                        print("\nRow[-4]: " + str(row[-4]))
-                        
-                line_count += 1
-            print("\nLinecount: " + str(line_count))
-            
+                       
+                except ValueError:
+                    continue
+           
             #Negative average, Positive average, amount of samples
             identity_averages_dict[identity] = [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount]
+    
+    #Remove previous file:
+    conc_fn = './results/Conclusive_Results_' + str(file_name_og) + '.csv'
+    if os.path.isfile(conc_fn):
+        os.remove(conc_fn)
+        #print("\n Previous file removed")
+    
+    #print("\nidentity_averages: " + str(identity_averages_dict))
+    #Create conclusive results file:
+    row_info = []
+    row_info.append('Chatbot Condition')
+    row_info.append('Average of Negative probability')
+    row_info.append('Average of Positive probability')
+    row_info.append('Sample size')
+    
+    #Create headers:
+    with open(conc_fn, 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(row_info)
+    
+    
+    for key in identity_averages_dict.keys():
+        row_info = []
+        values_for_id = identity_averages_dict[key]
+        #print("\nvalues_for_id: " + str(values_for_id))
+        avg_neg = values_for_id[0]
+        avg_pos = values_for_id[1]
+        sample_size = values_for_id[2]
+        row_info.append(key)
+        row_info.append(avg_neg)
+        row_info.append(avg_pos)
+        row_info.append(sample_size)
         
-    
-    print("\nidentity_averages: " + str(identity_averages_dict))
-    
-                    
+        with open(conc_fn, 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(row_info)
             
+        file.close()                
+                
 
-def save_to_csv(values, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed):
+def save_to_csv(values, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, filename):
     ''''''
     #Add other information:'
     row_info = keys.copy()
@@ -104,19 +122,22 @@ def save_to_csv(values, keys, prob_neg, prob_pos, classification, save_counter, 
     values.append(classification)
     #print("values: " + str(values))
 
-    with open('./results/individual_file_results/results_{}.csv'.format(number_of_file_chunks_processed), 'a', newline='') as file:
+    
+    #Check if similar file already exists, if so, remove it and replace with new result file:
+
+    with open(filename, 'a', newline='') as file:
         writer = csv.writer(file)
         if save_counter == 0:
             writer.writerow(row_info)
         else:
             writer.writerow(values)
-    
-    
+
+
     file.close()
     save_counter = 1
     return save_counter
      
-def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keyes):
+def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keyes, filename):
     '''Print various different statistics about the client response.'''
 
     prob_pos = probability_result.prob("pos")
@@ -176,7 +197,7 @@ def print_statistics(probability_result, nb_classifier, normalized_comment_featu
     #print('************************************\n')
 
     #SAVE RESULTS TO CSV FILE: /sentiment_analyzer/classification_results/results.txt
-    save_counter = save_to_csv(values, keyes, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed)
+    save_counter = save_to_csv(values, keyes, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, filename)
 
     return save_counter
 

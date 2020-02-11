@@ -1,0 +1,2 @@
+StartDate,EndDate,Status,IPAddress,Progress,Duration (in seconds),Finished,RecordedDate,ResponseId,RecipientLastName,RecipientFirstName,RecipientEmail,ExternalReference,LocationLatitude,LocationLongitude,DistributionChannel,UserLanguage,Q18_1,Q18_2,Q18_3,Q26_1,Q26_2,Q26_3,Q27_1,Q27_2,Q27_3,Q28_1,Q28_2,Q28_3,Q29_1,Q29_2,Q29_3,Q30_1,Q30_2,Q30_3,Q31_1,Q31_2,Q32_1,Q32_2,Q32_3,Q33,Q34,"misc
+",Negative probability,Positive probability,Classification

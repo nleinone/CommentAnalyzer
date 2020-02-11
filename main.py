@@ -76,9 +76,15 @@ if __name__ == '__main__':
     
     keys = []
 
-    for file_name in csv_file_names:    
+    for file_name_og in csv_file_names:    
         lines_left_to_process = True
         number_of_file_chunks_processed = 0
+        
+        file_name = './results/individual_file_results/results_' + str(file_name_og) + "_" + str(number_of_file_chunks_processed) + '.csv'
+        if os.path.isfile(file_name):
+            os.remove(file_name)
+            print("\n Previous file removed")
+        
         line_counter = 0
         while(lines_left_to_process):
             #Variables
@@ -87,12 +93,12 @@ if __name__ == '__main__':
             '''BIG DATA PARSING'''
             #print("\n number_of_lines_processed: " + str(number_of_lines_processed))
             #Count file lines, should be either max_line_count (9999) or all remaining lines which is < 9999
-            line_count = parsing_functions.count_remaining_file_lines(file_name, number_of_lines_processed, max_line_count)
+            line_count = parsing_functions.count_remaining_file_lines(file_name_og, number_of_lines_processed, max_line_count)
             #print("\nMain: line_count: " + str(line_count))
             
 
             #Convert file lines to list (Max 100)
-            file_lines_list = parsing_functions.convert_file_to_list(line_count, file_name, number_of_lines_processed)
+            file_lines_list = parsing_functions.convert_file_to_list(line_count, file_name_og, number_of_lines_processed)
             number_of_lines_processed += line_count
             #print("\nMain: number_of_lines_processed: " + str(number_of_lines_processed))
             
@@ -187,10 +193,10 @@ if __name__ == '__main__':
 
                     
                     #Create results file:
-                    save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys)
+                    save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys, file_name)
                     
                     #Create conclusive results from previously created results file:
-                    classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys)
+                    classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_og)
             number_of_file_chunks_processed += 1
 
             if line_count < max_line_count:
