@@ -14,8 +14,9 @@ if __name__ == '__main__':
     Cross_validate_classifier == 0
     Analysed_text_column_location = -3 (3rd last by default)
     Range of question values to be collected:
-    bottom_range = 
-    top_range = 
+    bottom_range = 17 (Default)
+    top_range = 37 (Default)
+    User-id column number = 
     '''
     
     try:
@@ -28,23 +29,23 @@ if __name__ == '__main__':
             print("Cross validate: False")
             cross_validate = False
         else:
-            print("Cross validate: False")
+            print("Cross validate: False (Default)")
             cross_validate == False
     except Exception as e:
-        print("Cross validate: False")
+        print("Cross validate: False (Default)")
         cross_validate = False 
     
     try:
-        Analysed_text_column_location = sys.argv[2]
+        Analysed_text_column_location = int(sys.argv[2]) - 1
         Analysed_text_column_location = int(Analysed_text_column_location)
         print("Analysed_text_column_location: " + str(Analysed_text_column_location))
     except Exception as e:
-        print("Analysed_text_column_location: -3 (3rd last)")
+        print("Analysed_text_column_location: -3 (3rd last) (Default)")
         Analysed_text_column_location = -3
     
     try:
-        bottom_range = sys.argv[3]
-        top_range = sys.argv[4]
+        bottom_range = int(sys.argv[3]) - 1
+        top_range = int(sys.argv[4]) - 1
         bottom_range = int(bottom_range)
         top_range = int(top_range)
         print("bottom column range for question values: " + str(bottom_range))
@@ -52,9 +53,17 @@ if __name__ == '__main__':
     except Exception as e:
         bottom_range = 17
         top_range = 39
-        print("Bottom column range for question values: Column 17 (R)")
-        print("Top column range for question values: Column 39 (AN)")
-        
+        print("Bottom column range for question values: Column 17 (R) (Default)")
+        print("Top column range for question values: Column 39 (AN) (Default)")
+    
+    try:
+        user_id_location = int(sys.argv[5]) - 1
+        user_id_location = int(user_id_location)
+        print("user_id_location: " + str(user_id_location))
+    except Exception as e:
+        print("Analysed_text_column_location: 9 (Default)")
+        user_id_location = 8
+    
     #In case of big data processing is needed:    
     #try:
     #    max_line_count = sys.argv[3]
@@ -210,7 +219,7 @@ if __name__ == '__main__':
                     save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys, file_name)
                     
                     #Create conclusive results from previously created results file:
-                    classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_og, bottom_range, top_range)
+            classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_og, bottom_range, top_range, user_id_location)
             number_of_file_chunks_processed += 1
 
             if line_count < max_line_count:
