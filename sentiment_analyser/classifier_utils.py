@@ -34,7 +34,29 @@ import csv
 #REFERENCES:
 #https://realpython.com/python-csv/
 
-def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, filename, file_name_og):
+def collect_sentiment_score(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, identity):
+    
+    csv_reader = csv.reader(file, delimiter=',')
+
+    for row in csv_reader:
+        #ingore headers
+        try:
+            #ID key position after added positive, negative, and classification column:
+            if row[-4] == identity:
+                
+                count_identity_amount += 1
+                positive_prob = row[-2]
+                negative_prob = row[-3]
+                sum_of_values_positive = sum_of_values_positive + float(positive_prob)
+                sum_of_values_negative = sum_of_values_negative + float(negative_prob)
+               
+        except ValueError:
+            continue
+       
+    return [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount], count_identity_amount
+    
+def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, filename, file_name_og, bottom_range, top_range):
+    '''Create conclusive results from processed document'''
     
     identity_averages_dict = {}
     avg_values = []
@@ -44,29 +66,12 @@ def create_conclusive_results_file(number_of_file_chunks_processed, discovered_i
         count_identity_amount = 1
         sum_of_values_positive = 0
         sum_of_values_negative = 0
+        question_points_average = 0
         
         with open(filename) as file:
-            csv_reader = csv.reader(file, delimiter=',')
-            line_count = 0
-            for row in csv_reader:
-                line_count += 1
-                #print(line_count)
-                #ingore headers
-                try:
-                    #ID key position after added positive, negative, and classification column:
-                    if row[-4] == identity:
-                        
-                        count_identity_amount += 1
-                        positive_prob = row[-2]
-                        negative_prob = row[-3]
-                        sum_of_values_positive = sum_of_values_positive + float(positive_prob)
-                        sum_of_values_negative = sum_of_values_negative + float(negative_prob)
-                       
-                except ValueError:
-                    continue
-           
+            
             #Negative average, Positive average, amount of samples
-            identity_averages_dict[identity] = [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount]
+            identity_averages_dict[identity], count_identity_amount = collect_sentiment_score(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, identity)
     
     #Remove previous file:
     conc_fn = './results/Conclusive_Results_' + str(file_name_og) + '.csv'

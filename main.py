@@ -13,8 +13,9 @@ if __name__ == '__main__':
     
     Cross_validate_classifier == 0
     Analysed_text_column_location = -3 (3rd last by default)
-    max_line_count = 100
-    
+    Range of question values to be collected:
+    bottom_range = 
+    top_range = 
     '''
     
     try:
@@ -41,6 +42,19 @@ if __name__ == '__main__':
         print("Analysed_text_column_location: -3 (3rd last)")
         Analysed_text_column_location = -3
     
+    try:
+        bottom_range = sys.argv[3]
+        top_range = sys.argv[4]
+        bottom_range = int(bottom_range)
+        top_range = int(top_range)
+        print("bottom column range for question values: " + str(bottom_range))
+        print("top column range for question values: " + str(top_range))
+    except Exception as e:
+        bottom_range = 17
+        top_range = 39
+        print("Bottom column range for question values: Column 17 (R)")
+        print("Top column range for question values: Column 39 (AN)")
+        
     #In case of big data processing is needed:    
     #try:
     #    max_line_count = sys.argv[3]
@@ -196,7 +210,7 @@ if __name__ == '__main__':
                     save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys, file_name)
                     
                     #Create conclusive results from previously created results file:
-                    classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_og)
+                    classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_og, bottom_range, top_range)
             number_of_file_chunks_processed += 1
 
             if line_count < max_line_count:
