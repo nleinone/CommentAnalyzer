@@ -2,10 +2,11 @@ from random import shuffle
 from nltk import ngrams
 from preprocessing import preprocessor
 import os.path
+from colorama import Fore
 '''
 REFERENCES:
 
-Above link demonstrates the use of movie review data and nltk Naive Bayes classifier library:
+Above link demonstrates the use of movie review data and nltk Naive Bayes classifier library for sentiment analysis:
 http://blog.chapagain.com.np/python-nltk-sentiment-analysis-on-movie-reviews-natural-language-processing-nlp/
 
 Documentation for nltk Naive Bayes:
@@ -28,13 +29,37 @@ from sys import exit
 import string 
 import sys
 from nltk.metrics.scores import precision, recall, f_measure
-
+import time
 import csv
-
+#print("\n: " + str())
 #REFERENCES:
 #https://realpython.com/python-csv/
 
-def collect_sentiment_score(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, identity, user_id_location):
+def collect_question_point_averages(bottom_range, top_range, row, identity):
+    '''Collect points from the questionnaire, using given range of the columns'''
+
+    score_sum = 0
+    question_count = 1
+    question_points_average = 0
+    print("\nRow:" + str(row))
+    for i in range(bottom_range, top_range + 1):
+        print("\n" + str(i))
+        try:
+            question_score = int(row[i])
+            score_sum = score_sum + question_score
+            question_count += 1
+            
+        except Exception as e:
+            print("\nError: " + str(e))
+            continue
+    
+    print("\nSum: " + str(sum))
+    question_points_average = score_sum / question_count
+    
+    return question_points_average
+    
+def collect_sentiment_score(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, identity, user_id_location, bottom_range, top_range, question_points_average):
+    '''Collect sentiment scores using given column location indicators'''
     
     csv_reader = csv.reader(file, delimiter=',')
     user_ids = []
@@ -44,6 +69,7 @@ def collect_sentiment_score(file, count_identity_amount, sum_of_values_positive,
             #ID key position after added positive, negative, and classification column:
             if row[-4] == identity:
                 
+                question_points_average = collect_question_point_averages(bottom_range, top_range, row, identity)
                 user_ids.append(row[user_id_location])
                 count_identity_amount += 1
                 positive_prob = row[-2]
@@ -53,8 +79,74 @@ def collect_sentiment_score(file, count_identity_amount, sum_of_values_positive,
                
         except ValueError:
             continue
+            
+    print("\nCollecting sentiment and questionnaire scores for condition: {}...Done!".format(identity))
+    return [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount, question_points_average, user_ids], count_identity_amount
+
+def remove_previous_file(conc_fn_profilic):
+    '''Check and remove previously created file'''
+    #Remove previous file:
+    if os.path.isfile(conc_fn_profilic):
+        os.remove(conc_fn_profilic)
+
+def create_qualtric_data_file(identity_averages_dict, path_qualtric):
+    '''Create results file from the qualtric data file'''
+
+    remove_previous_file(path_qualtric)
     
-    return [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount, user_ids], count_identity_amount
+    row_info = []
+    row_info.append('Age')
+    row_info.append('Average of Negative probability')
+    row_info.append('Average of Positive probability')
+    row_info.append('Sample size')
+    row_info.append('Average Questionnaire Score')
+    
+    #Create headers:
+    with open(path_qualtric, 'a', newline='') as cfile:
+        writer = csv.writer(cfile)
+        writer.writerow(row_info)
+    
+def create_prolific_data_file(identity_averages_dict, conc_fn_profilic):
+    '''Create results file from the prolific data file'''
+    
+    print("\nCreating Prolific results file...", end="\r")
+    remove_previous_file(conc_fn_profilic)
+    
+    row_info = []
+    row_info.append('Chatbot Condition')
+    row_info.append('Average of Negative probability')
+    row_info.append('Average of Positive probability')
+    row_info.append('Sample size')
+    row_info.append('Average Questionnaire Score')
+    
+    #Create headers:
+    with open(conc_fn_profilic, 'a', newline='') as cfile:
+        writer = csv.writer(cfile)
+        writer.writerow(row_info)
+    
+    
+    for key in identity_averages_dict.keys():
+        row_info = []
+        values_for_id = identity_averages_dict[key]
+        avg_neg = values_for_id[0]
+        avg_pos = values_for_id[1]
+        sample_size = values_for_id[2]
+        question_score_avg = values_for_id[3]
+        
+        row_info.append(key)
+        row_info.append(avg_neg)
+        row_info.append(avg_pos)
+        row_info.append(sample_size)
+        row_info.append(question_score_avg)
+        
+        #Add user information:
+
+        with open(conc_fn_profilic, 'a', newline='') as cfile2:
+            writer = csv.writer(cfile2)
+            writer.writerow(row_info)
+            
+        cfile2.close()   
+    print("\nCreating Prolific results file...Done!")
     
 def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, filename, file_name_og, bottom_range, top_range, user_id_location):
     '''Create conclusive results from processed document'''
@@ -63,59 +155,26 @@ def create_conclusive_results_file(number_of_file_chunks_processed, discovered_i
     avg_values = []
     
     for identity in discovered_identities:
-        #print("\nCurrent id: " + str(identity))
         count_identity_amount = 1
         sum_of_values_positive = 0
         sum_of_values_negative = 0
         question_points_average = 0
-        
         with open(filename) as file:
             
             #Negative average, Positive average, amount of samples
-            identity_averages_dict[identity], count_identity_amount = collect_sentiment_score(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, identity, user_id_location)
+            identity_averages_dict[identity], count_identity_amount = collect_sentiment_score(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, identity, user_id_location, bottom_range, top_range, question_points_average)
     
+    path_profilic = './results/Conclusive_Results_'
+    conc_fn_profilic = path_profilic + str(file_name_og) + '.csv'
+    path_qualtric = './results/User_information_results_'
+    conc_fn_qualtric = path_profilic + str(file_name_og) + '.csv'
     
-    #Remove previous file:
-    conc_fn = './results/Conclusive_Results_' + str(file_name_og) + '.csv'
-    if os.path.isfile(conc_fn):
-        os.remove(conc_fn)
-        #print("\n Previous file removed")
+    create_prolific_data_file(identity_averages_dict, conc_fn_profilic)
+    #create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric)
     
-    #print("\nidentity_averages: " + str(identity_averages_dict))
-    #Create conclusive results file:
-    row_info = []
-    row_info.append('Chatbot Condition')
-    row_info.append('Average of Negative probability')
-    row_info.append('Average of Positive probability')
-    row_info.append('Sample size')
+    print("\nProlific data results saved in {}".format(conc_fn_profilic))
+    print("\nQualtric data results saved in {}".format(conc_fn_qualtric))
     
-    #Create headers:
-    with open(conc_fn, 'a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(row_info)
-    
-    
-    for key in identity_averages_dict.keys():
-        row_info = []
-        values_for_id = identity_averages_dict[key]
-        print("\nvalues_for_key: " + str(key))
-        print("\nvalues_for_id: " + str(values_for_id[3]))
-        #print("\nvalues_for_id: " + str(values_for_id))
-        avg_neg = values_for_id[0]
-        avg_pos = values_for_id[1]
-        sample_size = values_for_id[2]
-        row_info.append(key)
-        row_info.append(avg_neg)
-        row_info.append(avg_pos)
-        row_info.append(sample_size)
-        
-        with open(conc_fn, 'a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(row_info)
-            
-        file.close()                
-                
-
 def save_to_csv(values, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, filename):
     ''''''
     #Add other information:'

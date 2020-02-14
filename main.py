@@ -1,27 +1,40 @@
 import os
-from datetime import datetime
+import time
 import sys
+from colorama import Fore, init, Style
+#Add colours:
+init()
+
 
 from parsing import parsing_functions
 from preprocessing import preprocessor
 from sentiment_analyser import configure_classifiers
 from sentiment_analyser import classifier_utils
 
-if __name__ == '__main__':
-    '''Main function for the script.
-    Takes the following arguments as cmd line arguments (defaults declared):
-    
+#Add command line arguments with describtions:
+import argparse
+parser=argparse.ArgumentParser()
+parser.add_argument('--cross_validate', help='Perform a cross validation to the classifier training data with 1/5 split. Input: 0 (Default) = False, 1 = True')
+parser.add_argument('--analyzed_text_location', help='The column number (csv/Excel file from the Prolific) of the text which the sentiment analysis will be performed. Default=-3')
+parser.add_argument('--bottom_range', help='The lowest column number (csv/Excel file from the Prolific) of the Prolific questionnaire with an answer with numeric value. Default=17')
+parser.add_argument('--top_range', help='The highest column number (csv/Excel file from the Prolific) of the Prolific questionnaire with an answer with numeric value. Default=40')
+parser.add_argument('--user_id_location', help='The column number (csv/Excel file from the Prolific) of the Prolific user ID value. Default=9')
+
+args=parser.parse_args()
+
+def check_cmd_arguments():
+    '''Check the input values given via command line arguments
     Cross_validate_classifier == 0
     Analysed_text_column_location = -3 (3rd last by default)
     Range of question values to be collected:
-    bottom_range = 17 (Default)
-    top_range = 37 (Default)
-    User-id column number = 
+    bottom_range = 18 (Default)
+    top_range = 40 (Default)
+    User-id column number = 8
     '''
-    
+    print(Fore.YELLOW)
     try:
-        cross_validate = sys.argv[1]
-        
+        cross_validate = sys.argv[1].split("=")
+        cross_validate = cross_validate[1]
         if cross_validate == "1":
             print("Cross validate: True")
             cross_validate = True
@@ -36,30 +49,32 @@ if __name__ == '__main__':
         cross_validate = False 
     
     try:
-        Analysed_text_column_location = int(sys.argv[2]) - 1
+        Analysed_text_column_location = sys.argv[2].split("=")
+        Analysed_text_column_location = int(Analysed_text_column_location[1]) - 1
         Analysed_text_column_location = int(Analysed_text_column_location)
-        print("Analysed_text_column_location: " + str(Analysed_text_column_location))
+        print("Analysed_text_column_location: " + str(int(Analysed_text_column_location) + 1))
     except Exception as e:
-        print("Analysed_text_column_location: -3 (3rd last) (Default)")
+        print(Fore.YELLOW + "Analysed_text_column_location: -3 (3rd last) (Default)")
         Analysed_text_column_location = -3
     
     try:
-        bottom_range = int(sys.argv[3]) - 1
-        top_range = int(sys.argv[4]) - 1
-        bottom_range = int(bottom_range)
-        top_range = int(top_range)
-        print("bottom column range for question values: " + str(bottom_range))
-        print("top column range for question values: " + str(top_range))
+        bottom_range = sys.argv[3].split("=")
+        top_range = sys.argv[4].split("=")
+        bottom_range = int(bottom_range[3]) - 1
+        top_range = int(top_range[4]) - 1
+
+        print("bottom column range for question values: " + str(bottom_range + 1))
+        print("top column range for question values: " + str(top_range + 1))
     except Exception as e:
         bottom_range = 17
         top_range = 39
-        print("Bottom column range for question values: Column 17 (R) (Default)")
-        print("Top column range for question values: Column 39 (AN) (Default)")
+        print("Bottom column range for question values: Column 18 (R) (Default)")
+        print("Top column range for question values: Column 40 (AN) (Default)")
     
     try:
-        user_id_location = int(sys.argv[5]) - 1
-        user_id_location = int(user_id_location)
-        print("user_id_location: " + str(user_id_location))
+        user_id_location = sys.argv[5].split("=")
+        user_id_location = int(user_id_location[1]) - 1
+        print("user_id_location: " + str(user_id_location + 1))
     except Exception as e:
         print("Analysed_text_column_location: 9 (Default)")
         user_id_location = 8
@@ -73,12 +88,21 @@ if __name__ == '__main__':
     #    print("Maximum line process count: 100")
     #    max_line_count = 100
     max_line_count = 9999
-    #Runtime stamp
-    datetime_start = datetime.now()
+    
+    print(Style.RESET_ALL)
+    return cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count
 
+if __name__ == '__main__':
+    '''Main function for the script.
+    Takes the following arguments as cmd line arguments (defaults declared):
+    '''
+
+    cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count = check_cmd_arguments()
+ 
+    start = time.time()
+ 
     '''Variables'''
     number_of_lines_processed = 0
-    
     cross_validations_fold_ratio = 200
 
     '''*** INITIAL CONFIGURATIONS ***'''
@@ -90,40 +114,30 @@ if __name__ == '__main__':
     classifier = nb_classifier
     classifier_accuracy_values = average_values
 
-    '''*** INITIAL CONFIGURATIONS ENDS***'''
-
     '''**** FILE PARSING PROCESS STARTS HERE****'''
     csv_file_names = parsing_functions.fetch_document_names()
-    
-    
-    
+
     keys = []
 
     for file_name_og in csv_file_names:    
         lines_left_to_process = True
         number_of_file_chunks_processed = 0
-        
+
         file_name = './results/individual_file_results/results_' + str(file_name_og) + "_" + str(number_of_file_chunks_processed) + '.csv'
         if os.path.isfile(file_name):
             os.remove(file_name)
-            print("\n Previous file removed")
-        
+
         line_counter = 0
         while(lines_left_to_process):
             #Variables
             information_collection = []
 
-            '''BIG DATA PARSING'''
-            #print("\n number_of_lines_processed: " + str(number_of_lines_processed))
             #Count file lines, should be either max_line_count (9999) or all remaining lines which is < 9999
             line_count = parsing_functions.count_remaining_file_lines(file_name_og, number_of_lines_processed, max_line_count)
-            #print("\nMain: line_count: " + str(line_count))
-            
 
             #Convert file lines to list (Max 100)
             file_lines_list = parsing_functions.convert_file_to_list(line_count, file_name_og, number_of_lines_processed)
             number_of_lines_processed += line_count
-            #print("\nMain: number_of_lines_processed: " + str(number_of_lines_processed))
             
             #Distinguish information from file line (For example user_name, time, bot_mood, bot_answer, user_answer):
             for file_line in file_lines_list:
@@ -137,29 +151,16 @@ if __name__ == '__main__':
 
                 information_dictionary, keys = parsing_functions.distinguish_information(file_line, is_header, keys)
                 
-                
                 if (len(information_dictionary) == len(keys)):
                     information_collection.append(information_dictionary)
                 line_counter = line_counter + 1
-            
+
             all_comments, discovered_identities = parsing_functions.separate_comments_by_bot_identity(information_collection, keys)
             save_counter = 0
-            
+
             sum = 0
 
             for comment_set in all_comments:
-                
-                #try:
-                    #Bot identity and free text location
-                #    first_comment = comment_set[1]
-                #    identity = first_comment[keys[2]]
-                #    print('Processing {} bot answer data...'.format(identity))
-
-                #except:
-                #    continue
-
-                '''*** PARSING ENDS HERE ***'''
-
                 '''*** NATURAL LANGUAGE PREPROCESSING STARTS HERE***'''
                 #Preprocess user comments one bot mood data set at time:
                 for comment in comment_set[1:]:
@@ -188,32 +189,12 @@ if __name__ == '__main__':
                     #Clean the user answer bigram
                     normalized_comment_bigram = preprocessor.normalize_and_clean_comment(stopword_filtered_comment_bigram)
 
-                    '''*** NATURAL LANGUAGE PREPROCESSING STOPS HERE***'''
-
                     '''*** SENTIMENT ANALYSIS WITH NAIVE BAYES STARTS HERE***'''
-
                     normalized_comment_feature_set_unigram = classifier_utils.extract_feature_unigram(normalized_comment_unigram, training_mode)
                     normalized_comment_feature_set_bigram = classifier_utils.extract_features_bigram(normalized_comment_bigram, training_mode)
                     normalized_comment_feature_set = classifier_utils.extract_features(normalized_comment_unigram, normalized_comment_bigram, training_mode)
 
-                    '''
-                    DEBUG PRINTS:
-
-                    print("normalized comment unigram: ")
-                    print(normalized_comment_unigram)
-                    print("normalized comment bigram: ")
-                    print(normalized_comment_bigram)
-                    print("normalized_comment_feature_set_unigram: ")
-                    print(normalized_comment_feature_set_unigram)
-                    print("normalized_comment_feature_set_bigram: ")
-                    print(normalized_comment_feature_set_bigram)
-                    print("extract_features: ")
-                    print(normalized_comment_feature_set)
-                    exit()
-                    '''
-
                     probability_result = classifier.prob_classify(normalized_comment_feature_set)
-
                     
                     #Create results file:
                     save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys, file_name)
@@ -222,6 +203,7 @@ if __name__ == '__main__':
             classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_og, bottom_range, top_range, user_id_location)
             number_of_file_chunks_processed += 1
 
+            #For possible file chunking operations in case of big data.
             if line_count < max_line_count:
                 lines_left_to_process = False
                 line_count = 0
@@ -231,4 +213,5 @@ if __name__ == '__main__':
                 line_count = 0
 
     #Runtime stamp
-    print("Runtime: {}\n".format(datetime.now() - datetime_start))
+    end = time.time()
+    print("Runtime: {} seconds.\n".format(end - start))

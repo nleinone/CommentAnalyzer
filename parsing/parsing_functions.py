@@ -67,7 +67,7 @@ def convert_file_to_list(line_count, file_name, number_of_lines_processed):
     lines_list = []
     counter = 0
 
-    with open('././docs/' + file_name) as file:
+    with open('././docs/prolific_docs/' + file_name) as file:
         file.seek(number_of_lines_processed)
         for i in range(line_count):
             try:
@@ -103,7 +103,7 @@ def count_remaining_file_lines(file_name, number_of_lines_processed, max_line_co
     counter = 0
     #print("\n number_of_lines_processed: " + str(number_of_lines_processed))
     #print("\n counter: " + str(counter))
-    with open('././docs/' + file_name) as file:
+    with open('././docs/prolific_docs/' + file_name) as file:
         file.seek(number_of_lines_processed)
         for i in range(max_line_count):
             try:
@@ -132,9 +132,9 @@ def count_remaining_file_lines(file_name, number_of_lines_processed, max_line_co
     return counter
 
 def fetch_document_names():
-    '''Fetch csv files from ./docs/'''
+    '''Fetch csv files from ./docs/prolific_docs/'''
 
-    file_location = './docs'
+    file_location = './docs/prolific_docs/'
     csv_file_names = []
     file_names = os.listdir(file_location)
 
