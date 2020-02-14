@@ -134,12 +134,21 @@ def count_remaining_file_lines(file_name, number_of_lines_processed, max_line_co
 def fetch_document_names():
     '''Fetch csv files from ./docs/prolific_docs/'''
 
-    file_location = './docs/prolific_docs/'
-    csv_file_names = []
-    file_names = os.listdir(file_location)
-
-    for file_name in file_names:
+    file_location_prolific = './docs/prolific_docs/'
+    file_location_qualtric = './docs/qualtric_docs/'
+    
+    csv_file_names_prolific = []
+    csv_file_names_qualtric = []
+    
+    file_names_prolific = os.listdir(file_location_prolific)
+    file_names_qualtric = os.listdir(file_location_qualtric)
+    
+    for file_name in file_names_prolific:
         if file_name.endswith((".csv")):
-            csv_file_names.append(file_name)
+            csv_file_names_prolific.append(file_name)
 
-    return csv_file_names
+    for file_name in file_names_qualtric:
+        if file_name.endswith((".csv")):
+            csv_file_names_qualtric.append(file_name)
+            
+    return csv_file_names_prolific, csv_file_names_qualtric

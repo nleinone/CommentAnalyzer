@@ -5,20 +5,34 @@ from colorama import Fore, init, Style
 #Add colours:
 init()
 
-
 from parsing import parsing_functions
 from preprocessing import preprocessor
 from sentiment_analyser import configure_classifiers
 from sentiment_analyser import classifier_utils
 
+'''
+REFERENCES:
+Using Python zip():
+https://realpython.com/python-zip-function/
+
+Using argparser for command line inputs:
+https://docs.python.org/2/library/argparse.html
+
+Using colorama to create colorful commandline outputs:
+https://pypi.org/project/colorama/
+
+'''
+
 #Add command line arguments with describtions:
 import argparse
 parser=argparse.ArgumentParser()
 parser.add_argument('--cross_validate', help='Perform a cross validation to the classifier training data with 1/5 split. Input: 0 (Default) = False, 1 = True')
-parser.add_argument('--analyzed_text_location', help='The column number (csv/Excel file from the Prolific) of the text which the sentiment analysis will be performed. Default=-3')
-parser.add_argument('--bottom_range', help='The lowest column number (csv/Excel file from the Prolific) of the Prolific questionnaire with an answer with numeric value. Default=17')
-parser.add_argument('--top_range', help='The highest column number (csv/Excel file from the Prolific) of the Prolific questionnaire with an answer with numeric value. Default=40')
-parser.add_argument('--user_id_location', help='The column number (csv/Excel file from the Prolific) of the Prolific user ID value. Default=9')
+parser.add_argument('--analyzed_text_location', help='The column number (CSV file from the Prolific) of the text which the sentiment analysis will be performed. Default=-3')
+parser.add_argument('--bottom_range', help='The lowest column number (CSV file from the Prolific) of the Prolific questionnaire with an answer with numeric value. Default=17')
+parser.add_argument('--top_range', help='The highest column number (CSV file from the Prolific) of the Prolific questionnaire with an answer with numeric value. Default=40')
+parser.add_argument('--user_id_location', help='The column number (CSV file from the Prolific) of the Prolific user ID value. Default=42')
+parser.add_argument('--user_id_qualtr_location', help='The column number (CSV file from the Qualtric) of the Qualtric user ID value. Default=2')
+parser.add_argument('--age_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user age value. Default=7')
 
 args=parser.parse_args()
 
@@ -52,9 +66,9 @@ def check_cmd_arguments():
         Analysed_text_column_location = sys.argv[2].split("=")
         Analysed_text_column_location = int(Analysed_text_column_location[1]) - 1
         Analysed_text_column_location = int(Analysed_text_column_location)
-        print("Analysed_text_column_location: " + str(int(Analysed_text_column_location) + 1))
+        print("Analysed text column number in Prolific CSV File: " + str(int(Analysed_text_column_location) + 1))
     except Exception as e:
-        print(Fore.YELLOW + "Analysed_text_column_location: -3 (3rd last) (Default)")
+        print(Fore.YELLOW + "Analysed text column number in Prolific CSV File: -3 (3rd last) (Default)")
         Analysed_text_column_location = -3
     
     try:
@@ -63,21 +77,21 @@ def check_cmd_arguments():
         bottom_range = int(bottom_range[3]) - 1
         top_range = int(top_range[4]) - 1
 
-        print("bottom column range for question values: " + str(bottom_range + 1))
-        print("top column range for question values: " + str(top_range + 1))
+        print("Bottom column number for question values in Prolific CSV File: " + str(bottom_range + 1))
+        print("Top column number for question values in Prolific CSV File: " + str(top_range + 1))
     except Exception as e:
         bottom_range = 17
         top_range = 39
-        print("Bottom column range for question values: Column 18 (R) (Default)")
-        print("Top column range for question values: Column 40 (AN) (Default)")
+        print("Bottom column number for question values in Prolific CSV File: Column 18 (R) (Default)")
+        print("Top column number for question values in Prolific CSV File: Column 40 (AN) (Default)")
     
     try:
         user_id_location = sys.argv[5].split("=")
         user_id_location = int(user_id_location[1]) - 1
-        print("user_id_location: " + str(user_id_location + 1))
+        print("User id column number in Prolific CSV File: " + str(user_id_location + 1))
     except Exception as e:
-        print("Analysed_text_column_location: 9 (Default)")
-        user_id_location = 8
+        print("User id column number in Prolific CSV File: 42 (Default)")
+        user_id_location = 41
     
     #In case of big data processing is needed:    
     #try:
@@ -89,15 +103,32 @@ def check_cmd_arguments():
     #    max_line_count = 100
     max_line_count = 9999
     
+    try:
+        user_id_qualtric_location = sys.argv[6].split("=")
+        user_id_qualtric_location = int(user_id_location[1]) - 1
+        print("User id column number Qualtric CSV File: " + str(user_id_qualtric_location + 1))
+    except Exception as e:
+        print("User id column number Qualtric CSV File: 2 (Default)")
+        user_id_qualtric_location = 1
+    
+    try:
+        age_location = sys.argv[7].split("=")
+        age_location = int(age_location[1]) - 1
+        print("User id column number Qualtric CSV File: " + str(age_location + 1))
+    except Exception as e:
+        print("User id column number Qualtric CSV File: 7 (Default)")
+        age_location = 6
+    
     print(Style.RESET_ALL)
-    return cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count
+    
+    return cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count, user_id_qualtric_location, age_location
 
 if __name__ == '__main__':
     '''Main function for the script.
     Takes the following arguments as cmd line arguments (defaults declared):
     '''
 
-    cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count = check_cmd_arguments()
+    cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count, user_id_qualtric_location, age_location = check_cmd_arguments()
  
     start = time.time()
  
@@ -115,15 +146,16 @@ if __name__ == '__main__':
     classifier_accuracy_values = average_values
 
     '''**** FILE PARSING PROCESS STARTS HERE****'''
-    csv_file_names = parsing_functions.fetch_document_names()
-
+    csv_file_names_prolific, csv_qualtric_files = parsing_functions.fetch_document_names()
+    
+    
     keys = []
 
-    for file_name_og in csv_file_names:    
+    for file_name_prolific, file_name_qualtric in zip(csv_file_names_prolific, csv_qualtric_files):    
         lines_left_to_process = True
         number_of_file_chunks_processed = 0
 
-        file_name = './results/individual_file_results/results_' + str(file_name_og) + "_" + str(number_of_file_chunks_processed) + '.csv'
+        file_name = './results/individual_file_results/results_' + str(file_name_prolific) + "_" + str(number_of_file_chunks_processed) + '.csv'
         if os.path.isfile(file_name):
             os.remove(file_name)
 
@@ -133,10 +165,10 @@ if __name__ == '__main__':
             information_collection = []
 
             #Count file lines, should be either max_line_count (9999) or all remaining lines which is < 9999
-            line_count = parsing_functions.count_remaining_file_lines(file_name_og, number_of_lines_processed, max_line_count)
+            line_count = parsing_functions.count_remaining_file_lines(file_name_prolific, number_of_lines_processed, max_line_count)
 
             #Convert file lines to list (Max 100)
-            file_lines_list = parsing_functions.convert_file_to_list(line_count, file_name_og, number_of_lines_processed)
+            file_lines_list = parsing_functions.convert_file_to_list(line_count, file_name_prolific, number_of_lines_processed)
             number_of_lines_processed += line_count
             
             #Distinguish information from file line (For example user_name, time, bot_mood, bot_answer, user_answer):
@@ -200,7 +232,7 @@ if __name__ == '__main__':
                     save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys, file_name)
                     
                     #Create conclusive results from previously created results file:
-            classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_og, bottom_range, top_range, user_id_location)
+            classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_prolific, file_name_qualtric, bottom_range, top_range, user_id_location, user_id_qualtric_location, age_location)
             number_of_file_chunks_processed += 1
 
             #For possible file chunking operations in case of big data.
