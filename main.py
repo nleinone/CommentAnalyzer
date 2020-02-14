@@ -33,6 +33,9 @@ parser.add_argument('--top_range', help='The highest column number (CSV file fro
 parser.add_argument('--user_id_location', help='The column number (CSV file from the Prolific) of the Prolific user ID value. Default=42')
 parser.add_argument('--user_id_qualtr_location', help='The column number (CSV file from the Qualtric) of the Qualtric user ID value. Default=2')
 parser.add_argument('--age_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user age value. Default=7')
+parser.add_argument('--user_sex_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user sex value. Default=16')
+parser.add_argument('--user_student_sts_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user student status value. Default=14')
+parser.add_argument('--user_first_language_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user first language information value. Default=17')
 
 args=parser.parse_args()
 
@@ -114,21 +117,57 @@ def check_cmd_arguments():
     try:
         age_location = sys.argv[7].split("=")
         age_location = int(age_location[1]) - 1
-        print("User id column number Qualtric CSV File: " + str(age_location + 1))
+        print("User age column number Qualtric CSV File: " + str(age_location + 1))
     except Exception as e:
-        print("User id column number Qualtric CSV File: 7 (Default)")
+        print("User age column number Qualtric CSV File: 7 (Default)")
         age_location = 6
+    
+    try:
+        sex_location = sys.argv[8].split("=")
+        sex_location = int(sex_location[1]) - 1
+        print("User sex column number Qualtric CSV File: " + str(sex_location + 1))
+    except Exception as e:
+        print("User sex column number Qualtric CSV File: 16 (Default)")
+        sex_location = 15
+    
+    try:
+        students_location = sys.argv[9].split("=")
+        students_location = int(students_location[1]) - 1
+        print("User student status column number Qualtric CSV File: " + str(students_location + 1))
+    except Exception as e:
+        print("User student status column number Qualtric CSV File: 14 (Default)")
+        students_location = 13
+    
+    try:
+        en_first_lang_location = sys.argv[10].split("=")
+        en_first_lang_location = int(en_first_lang_location[1]) - 1
+        print("User first language information column number Qualtric CSV File: " + str(en_first_lang_location + 1))
+    except Exception as e:
+        print("User first language information column number Qualtric CSV File: 17 (Default)")
+        en_first_lang_location = 16
+    
     
     print(Style.RESET_ALL)
     
-    return cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count, user_id_qualtric_location, age_location
+    #qualtric_column_numbers:
+    #qualtric_column_numbers[0] = age_location 7
+    #qualtric_column_numbers[1] = sex_location 16
+    #qualtric_column_numbers[3] = students_location 14
+    #qualtric_column_numbers[4] = en_first_lang_location 17
+    qualtric_column_numbers = []
+    qualtric_column_numbers.append(age_location)
+    qualtric_column_numbers.append(sex_location)
+    qualtric_column_numbers.append(students_location)
+    qualtric_column_numbers.append(en_first_lang_location)
+    
+    return cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count, user_id_qualtric_location, qualtric_column_numbers
 
 if __name__ == '__main__':
     '''Main function for the script.
     Takes the following arguments as cmd line arguments (defaults declared):
     '''
 
-    cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count, user_id_qualtric_location, age_location = check_cmd_arguments()
+    cross_validate, Analysed_text_column_location, bottom_range, top_range, user_id_location, max_line_count, user_id_qualtric_location, qualtric_column_numbers = check_cmd_arguments()
  
     start = time.time()
  
@@ -232,7 +271,7 @@ if __name__ == '__main__':
                     save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys, file_name)
                     
                     #Create conclusive results from previously created results file:
-            classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_prolific, file_name_qualtric, bottom_range, top_range, user_id_location, user_id_qualtric_location, age_location)
+            classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_prolific, file_name_qualtric, bottom_range, top_range, user_id_location, user_id_qualtric_location, qualtric_column_numbers)
             number_of_file_chunks_processed += 1
 
             #For possible file chunking operations in case of big data.

@@ -93,7 +93,6 @@ def calculate_average_age(ages):
     sum = 0
     for age in ages:
         try:
-            print("\nAge: " + str(age))
             sum = sum + int(age)
         except ValueError as e:
             print("Invalid file's age information!")
@@ -106,16 +105,26 @@ def calculate_average_age(ages):
 
     return average_age
     
-def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_name_qualtric, user_id_qualtric_location, age_location):
+def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_name_qualtric, user_id_qualtric_location, qualtric_column_numbers):
     '''Create results file from the qualtric data file'''
     #identity_averages_dict:
     #{IDENTITY: [avg_neg_prob, avg_pos_prob, count_identity_amount, question_points_average, user_ids]}
+
+    age_location = qualtric_column_numbers[0]
+    sex_location = qualtric_column_numbers[1]
+    students_location = qualtric_column_numbers[2]
+    en_first_lang_location = qualtric_column_numbers[3]
     
     identities = identity_averages_dict.keys()
     
     row_info = []
     row_info.append('Condition')
     row_info.append('Average Age')
+    row_info.append('Males')
+    row_info.append('Females')
+    row_info.append('Students')
+    row_info.append('Users with First Language English')
+    row_info.append('Total Number of Users (Consent given)')
     
     result_path = './results/'
     results_file_name_qualtric = 'results_' + file_name_qualtric
@@ -133,6 +142,11 @@ def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_nam
     for identity in identities:
         row_info = []
         ages = []
+        males = 0
+        females = 0
+        students = 0
+        en_first_lang = 0
+        total_number = 0
         
         idenity_info = identity_averages_dict[identity]
         idenity_user_ids = idenity_info[4]
@@ -146,6 +160,22 @@ def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_nam
                     try:
                         if row[user_id_qualtric_location] == user_id:
                             ages.append(row[age_location])
+                            print("\nsex" + str(sex_location))
+                            print("\nstudent" + str(students_location))
+                            print("\nlang" + str(en_first_lang_location))
+                            if row[sex_location] == "Male":
+                                print("\n1")
+                                males += 1
+                            
+                            if row[sex_location] == "Female":
+                                print("\n2")
+                                females += 1
+                            if row[students_location] == "Yes":
+                                students += 1
+                            if row[en_first_lang_location] == "English":
+                                en_first_lang += 1
+                            total_number += 1    
+
                     except IndexError:
                         continue
                         
@@ -155,6 +185,11 @@ def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_nam
         #Add collected data to the condition result file:
         row_info.append(identity)
         row_info.append(avg_age)
+        row_info.append(males)
+        row_info.append(females)
+        row_info.append(students)
+        row_info.append(en_first_lang)
+        row_info.append(total_number)
         
         with open(result_path_file, 'a', newline='') as cfile2:
             writer = csv.writer(cfile2)
@@ -202,7 +237,7 @@ def create_prolific_data_file(identity_averages_dict, conc_fn_profilic):
         cfile2.close()   
     print("\nCreating Prolific results file...Done!")
     
-def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, filename, file_name_prolific, file_name_qualtric, bottom_range, top_range, user_id_location, user_id_qualtric_location, age_location):
+def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, filename, file_name_prolific, file_name_qualtric, bottom_range, top_range, user_id_location, user_id_qualtric_location, qualtric_column_numbers):
     '''Create conclusive results from processed document'''
     
     identity_averages_dict = {}
@@ -224,9 +259,8 @@ def create_conclusive_results_file(number_of_file_chunks_processed, discovered_i
     conc_fn_qualtric = path_qualtric + str(file_name_qualtric)
     
     create_prolific_data_file(identity_averages_dict, conc_fn_profilic)
+    create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_name_qualtric, user_id_qualtric_location, qualtric_column_numbers)
     print("\nProlific data results saved in {}".format(conc_fn_profilic))
-    
-    create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_name_qualtric, user_id_qualtric_location, age_location)
     
 def save_to_csv(values, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, filename):
     ''''''
