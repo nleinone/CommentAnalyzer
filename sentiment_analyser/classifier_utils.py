@@ -34,53 +34,30 @@ import csv
 #print("\n: " + str())
 #REFERENCES:
 #https://realpython.com/python-csv/
-
-def collect_question_point_averages(bottom_range, top_range, row, identity):
-    '''Collect points from the questionnaire, using given range of the columns'''
-
-    score_sum = 0
-    question_count = 1
-    question_points_average = 0
-    print("\nRow:" + str(row))
-    for i in range(bottom_range, top_range + 1):
-        try:
-            question_score = int(row[i])
-            score_sum = score_sum + question_score
-            question_count += 1
-            
-        except Exception as e:
-            print("\nError: " + str(e))
-            continue
     
-    print("\nSum: " + str(sum))
-    question_points_average = score_sum / question_count
-    
-    return question_points_average
-    
-def collect_sentiment_score(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, identity, user_id_location, bottom_range, top_range, question_points_average):
+def collect_sentiment_score_from_dialogue_data(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, condition):
     '''Collect sentiment scores using given column location indicators'''
     
-    csv_reader = csv.reader(file, delimiter=',')
+    csv_reader = csv.reader(file, delimiter='|')
     user_ids = []
     for row in csv_reader:
         #ingore headers
         try:
-            #ID key position after added positive, negative, and classification column:
-            if row[-4] == identity:
+            #ID key position: user id, comment, neg, pos, class, condition
+            if row[-1] == condition:
                 
-                question_points_average = collect_question_point_averages(bottom_range, top_range, row, identity)
-                user_ids.append(row[user_id_location])
+                user_ids.append(row[0])
                 count_identity_amount += 1
-                positive_prob = row[-2]
-                negative_prob = row[-3]
+                positive_prob = row[3]
+                negative_prob = row[2]
                 sum_of_values_positive = sum_of_values_positive + float(positive_prob)
                 sum_of_values_negative = sum_of_values_negative + float(negative_prob)
                
         except ValueError:
             continue
             
-    print("\nCollecting sentiment and questionnaire scores for condition: {}...Done!".format(identity))
-    return [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount, question_points_average, user_ids], count_identity_amount
+    print("\nCollecting sentiment scores for condition: {}...Done!".format(condition))
+    return [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount, user_ids], count_identity_amount
 
 def remove_previous_file(conc_fn_profilic):
     '''Check and remove previously created file'''
@@ -105,17 +82,18 @@ def calculate_average_age(ages):
 
     return average_age
     
-def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_name_qualtric, user_id_qualtric_location, qualtric_column_numbers):
+def create_prolific_data_file(condition_averages_dict, file_name_prolific, prolific_column_numbers):
     '''Create results file from the qualtric data file'''
-    #identity_averages_dict:
+    #condition_averages_dict:
     #{IDENTITY: [avg_neg_prob, avg_pos_prob, count_identity_amount, question_points_average, user_ids]}
 
-    age_location = qualtric_column_numbers[0]
-    sex_location = qualtric_column_numbers[1]
-    students_location = qualtric_column_numbers[2]
-    en_first_lang_location = qualtric_column_numbers[3]
+    user_id_index = prolific_column_numbers[0]
+    age_index = prolific_column_numbers[1]
+    sex_index = prolific_column_numbers[2]
+    students_status_index = prolific_column_numbers[3]
+    en_first_lang_index = prolific_column_numbers[4]
     
-    identities = identity_averages_dict.keys()
+    conditions = condition_averages_dict.keys()
     
     row_info = []
     row_info.append('Condition')
@@ -126,11 +104,11 @@ def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_nam
     row_info.append('Users with First Language English')
     row_info.append('Total Number of Users (Consent given)')
     
-    result_path = './results/'
-    results_file_name_qualtric = 'results_' + file_name_qualtric
-    result_path_file = result_path + results_file_name_qualtric
+    result_path_folder = './results/'
+    results_file_name_prolific = 'results_' + file_name_prolific
+    result_file_path = result_path_folder + results_file_name_prolific
     
-    remove_previous_file(result_path + results_file_name_qualtric)
+    remove_previous_file(result_file_path)
     
     #Create headers:
     with open(result_path_file, 'a', newline='') as cfile:
@@ -139,7 +117,7 @@ def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_nam
     cfile.close()
 
     #Unpack information for each identity, and search corresponding information from the Qualtric file:
-    for identity in identities:
+    for condition in conditions:
         row_info = []
         ages = []
         males = 0
@@ -148,31 +126,34 @@ def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_nam
         en_first_lang = 0
         total_number = 0
         
-        idenity_info = identity_averages_dict[identity]
-        idenity_user_ids = idenity_info[4]
+        condition_info = condition_averages_dict[condition]
+        condition_user_ids = condition_info[4]
         
-        print("\nCollecting user information data for condition: {}...".format(identity))
-        for user_id in idenity_user_ids:
+        print("\nCollecting user information data for condition: {}...".format(condition))
         
-            with open(conc_fn_qualtric) as file:
+        prolific_file_path = './docs/prolific_docs/' + prolific_file_name
+        
+        for user_id in condition_user_ids:
+        
+            with open(prolific_file_path) as file:
                 csv_reader = csv.reader(file, delimiter=',')
                 for row in csv_reader:
                     try:
-                        if row[user_id_qualtric_location] == user_id:
-                            ages.append(row[age_location])
-                            print("\nsex" + str(sex_location))
-                            print("\nstudent" + str(students_location))
-                            print("\nlang" + str(en_first_lang_location))
-                            if row[sex_location] == "Male":
+                        if row[user_id_index] == user_id:
+                            ages.append(row[age_index])
+                            print("\nsex" + str(sex_index))
+                            print("\nstudent" + str(students_status_index))
+                            print("\nlang" + str(en_first_lang_index))
+                            if row[sex_index] == "Male":
                                 print("\n1")
                                 males += 1
                             
-                            if row[sex_location] == "Female":
+                            if row[sex_index] == "Female":
                                 print("\n2")
                                 females += 1
-                            if row[students_location] == "Yes":
+                            if row[students_status_index] == "Yes":
                                 students += 1
-                            if row[en_first_lang_location] == "English":
+                            if row[en_first_lang_index] == "English":
                                 en_first_lang += 1
                             total_number += 1    
 
@@ -191,13 +172,13 @@ def create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_nam
         row_info.append(en_first_lang)
         row_info.append(total_number)
         
-        with open(result_path_file, 'a', newline='') as cfile2:
+        with open(result_file_path, 'a', newline='') as cfile2:
             writer = csv.writer(cfile2)
             writer.writerow(row_info)
             
-    print("\nQualtric data results saved in {}".format(result_path_file))
+    print("\nProlific data results saved in {}".format(result_file_path))
     
-def create_prolific_data_file(identity_averages_dict, conc_fn_profilic):
+def create_qualtric_data_file(identity_averages_dict, conc_fn_profilic):
     '''Create results file from the prolific data file'''
     
     print("\nCreating Prolific results file...", end="\r")
@@ -236,70 +217,121 @@ def create_prolific_data_file(identity_averages_dict, conc_fn_profilic):
             
         cfile2.close()   
     print("\nCreating Prolific results file...Done!")
+
+def create_dialogue_results_file(condition_averages_dict, file_name_dialogue, discovered_conditions):
     
-def create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, filename, file_name_prolific, file_name_qualtric, bottom_range, top_range, user_id_location, user_id_qualtric_location, qualtric_column_numbers):
+    #{condition: [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount, user_ids]}
+    
+    row_info = []
+    row_info.append('Condition')
+    row_info.append('Avg. Propability of Positive Sentiment')
+    row_info.append('Avg. Propability of Negative Sentiment')
+    row_info.append('Sample Size')
+    
+    
+    result_path_folder = './results/'
+    results_file_name_dialogue = 'results_' + file_name_dialogue
+    result_file_path = result_path_folder + results_file_name_dialogue
+    
+    remove_previous_file(result_file_path)
+    
+    #Create headers:
+    with open(result_file_path, 'a', newline='') as cfile:
+        writer = csv.writer(cfile)
+        writer.writerow(row_info)
+    cfile.close()
+    
+    for condition in discovered_conditions:
+        print("\ndiscovered_conditions: " + str(discovered_conditions))
+        print("\ncondition: " + str(condition))
+        values = []
+        condition_specific_info_set = condition_averages_dict[condition]
+        values.append(condition)
+        values.append(condition_specific_info_set[1])
+        values.append(condition_specific_info_set[0])
+        values.append(condition_specific_info_set[2])
+        
+        with open(result_file_path, 'a', newline='') as cfile:
+            writer = csv.writer(cfile)
+            writer.writerow(values)
+            
+    cfile.close()
+    
+    print('\nDialogue data results saved in: {}'.format(result_file_path))
+    
+    
+def create_result_files(number_of_file_chunks_processed, discovered_conditions, keys, file_name_prolific, prolific_column_numbers, file_name_dialogue):
     '''Create conclusive results from processed document'''
     
-    identity_averages_dict = {}
+    condition_averages_dict = {}
     avg_values = []
+    individual_dialogue_result_path = './results/individual_file_results/individual_results_' + file_name_dialogue 
     
-    for identity in discovered_identities:
-        count_identity_amount = 1
+    for condition in discovered_conditions:
+        count_condition_amount = 0
         sum_of_values_positive = 0
         sum_of_values_negative = 0
-        question_points_average = 0
-        with open(filename) as file:
+        with open(individual_dialogue_result_path) as file:
             
             #Negative average, Positive average, amount of samples
-            identity_averages_dict[identity], count_identity_amount = collect_sentiment_score(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, identity, user_id_location, bottom_range, top_range, question_points_average)
+            condition_averages_dict[condition], count_condition_amount = collect_sentiment_score_from_dialogue_data(file, count_condition_amount, sum_of_values_positive, sum_of_values_negative, condition)
     
-    path_profilic = './results/Conclusive_Results_'
-    conc_fn_profilic = path_profilic + str(file_name_prolific)
-    path_qualtric = './docs/qualtric_docs/'
-    conc_fn_qualtric = path_qualtric + str(file_name_qualtric)
+    create_dialogue_results_file(condition_averages_dict, file_name_dialogue, discovered_conditions)
     
-    create_prolific_data_file(identity_averages_dict, conc_fn_profilic)
-    create_qualtric_data_file(identity_averages_dict, conc_fn_qualtric, file_name_qualtric, user_id_qualtric_location, qualtric_column_numbers)
-    print("\nProlific data results saved in {}".format(conc_fn_profilic))
+    #path__results_profilic = './results/Qualtric_Results_'
+    #conc_fn_results_prolific = path_profilic + str(file_name_qualtric)
+    #path_prolific_docs_folder = './docs/prolific_docs/'
+    #prolific_file_path = path_prolific_docs_folder + str(file_name_prolific)
     
-def save_to_csv(values, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, filename):
+    #create_qualtric_data_file(identity_averages_dict, conc_fn_profilic)
+    #create_prolific_data_file(condition_averages_dict, file_name_prolific, prolific_column_numbers)
+    #print("\nProlific data results saved in {}".format(conc_fn_profilic))
+    
+def save_to_csv(condition, user_answer, user_id, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, file_name_dialogue):
     ''''''
     #Add other information:'
-    row_info = keys.copy()
-    row_info.append('Negative probability')
-    row_info.append('Positive probability')
-    row_info.append('Classification')
-    #print("row_info: " + str(row_info))
-
+    individual_dialogue_result_path = './results/individual_file_results/individual_results_' + file_name_dialogue 
+    
+    if save_counter == 0:
+        remove_previous_file(individual_dialogue_result_path)
+        
+        row_info = []
+        #row_info = keys.copy()
+        row_info.append('User ID')
+        row_info.append('Comment')
+        row_info.append('Negative probability')
+        row_info.append('Positive probability')
+        row_info.append('Classification')
+        row_info.append('Condition')
+        #print("row_info: " + str(row_info))
+        with open(individual_dialogue_result_path, 'a', newline='') as file:
+            writer = csv.writer(file, delimiter="|")
+            writer.writerow(row_info)
+        file.close()
+        
     #Add other values:
+    values = []
+    values.append(user_id)
+    values.append(user_answer)
     values.append(prob_neg)
     values.append(prob_pos)
     values.append(classification)
-    #print("values: " + str(values))
+    values.append(condition)
 
-    
-    #Check if similar file already exists, if so, remove it and replace with new result file:
-
-    with open(filename, 'a', newline='') as file:
-        writer = csv.writer(file)
-        if save_counter == 0:
-            writer.writerow(row_info)
-        else:
-            writer.writerow(values)
-
+    with open(individual_dialogue_result_path, 'a', newline='') as file:
+        writer = csv.writer(file, delimiter="|")
+        writer.writerow(values)
 
     file.close()
     save_counter = 1
     return save_counter
      
-def print_statistics(probability_result, nb_classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keyes, filename):
+def print_statistics(condition, probability_result, nb_classifier, normalized_comment_feature_set, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keyes, file_name_dialogue, user_answer, user_id):
     '''Print various different statistics about the client response.'''
 
     prob_pos = probability_result.prob("pos")
     prob_neg = probability_result.prob("neg")
     #(user_name, time, bot_mood, bot_answer, user_answer):
-
-    values = list(comment.values())
 
     #print('\n******* SENTENCE STATISTICS *******\n')
     #print("Classified comment: {}".format(user_answer))
@@ -351,8 +383,8 @@ def print_statistics(probability_result, nb_classifier, normalized_comment_featu
     #print("\nClassification: {}\n".format(classification))
     #print('************************************\n')
 
-    #SAVE RESULTS TO CSV FILE: /sentiment_analyzer/classification_results/results.txt
-    save_counter = save_to_csv(values, keyes, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, filename)
+    
+    save_counter = save_to_csv(condition, user_answer, user_id, keyes, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, file_name_dialogue)
 
     return save_counter
 
