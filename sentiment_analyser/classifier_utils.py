@@ -82,18 +82,15 @@ def calculate_average_age(ages):
 
     return average_age
     
-def create_prolific_data_file(condition_averages_dict, file_name_prolific, prolific_column_numbers):
+def create_prolific_data_file(condition_averages_dict, file_name_prolific, prolific_column_numbers, discovered_conditions):
     '''Create results file from the qualtric data file'''
-    #condition_averages_dict:
-    #{IDENTITY: [avg_neg_prob, avg_pos_prob, count_identity_amount, question_points_average, user_ids]}
-
+    #{condition: [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount, user_ids]}
+    
     user_id_index = prolific_column_numbers[0]
     age_index = prolific_column_numbers[1]
     sex_index = prolific_column_numbers[2]
     students_status_index = prolific_column_numbers[3]
     en_first_lang_index = prolific_column_numbers[4]
-    
-    conditions = condition_averages_dict.keys()
     
     row_info = []
     row_info.append('Condition')
@@ -111,14 +108,14 @@ def create_prolific_data_file(condition_averages_dict, file_name_prolific, proli
     remove_previous_file(result_file_path)
     
     #Create headers:
-    with open(result_path_file, 'a', newline='') as cfile:
+    with open(result_file_path, 'a', newline='') as cfile:
         writer = csv.writer(cfile)
         writer.writerow(row_info)
     cfile.close()
 
-    #Unpack information for each identity, and search corresponding information from the Qualtric file:
-    for condition in conditions:
-        row_info = []
+    #Unpack information for each identity, and search corresponding information from the Prolific file:
+    for condition in discovered_conditions:
+        values = []
         ages = []
         males = 0
         females = 0
@@ -127,11 +124,11 @@ def create_prolific_data_file(condition_averages_dict, file_name_prolific, proli
         total_number = 0
         
         condition_info = condition_averages_dict[condition]
-        condition_user_ids = condition_info[4]
+        condition_user_ids = condition_info[3]
         
         print("\nCollecting user information data for condition: {}...".format(condition))
         
-        prolific_file_path = './docs/prolific_docs/' + prolific_file_name
+        prolific_file_path = './docs/prolific_docs/' + file_name_prolific
         
         for user_id in condition_user_ids:
         
@@ -164,17 +161,17 @@ def create_prolific_data_file(condition_averages_dict, file_name_prolific, proli
         avg_age = calculate_average_age(ages)
     
         #Add collected data to the condition result file:
-        row_info.append(identity)
-        row_info.append(avg_age)
-        row_info.append(males)
-        row_info.append(females)
-        row_info.append(students)
-        row_info.append(en_first_lang)
-        row_info.append(total_number)
+        values.append(condition)
+        values.append(avg_age)
+        values.append(males)
+        values.append(females)
+        values.append(students)
+        values.append(en_first_lang)
+        values.append(total_number)
         
         with open(result_file_path, 'a', newline='') as cfile2:
             writer = csv.writer(cfile2)
-            writer.writerow(row_info)
+            writer.writerow(values)
             
     print("\nProlific data results saved in {}".format(result_file_path))
     
@@ -228,7 +225,6 @@ def create_dialogue_results_file(condition_averages_dict, file_name_dialogue, di
     row_info.append('Avg. Propability of Negative Sentiment')
     row_info.append('Sample Size')
     
-    
     result_path_folder = './results/'
     results_file_name_dialogue = 'results_' + file_name_dialogue
     result_file_path = result_path_folder + results_file_name_dialogue
@@ -277,7 +273,7 @@ def create_result_files(number_of_file_chunks_processed, discovered_conditions, 
             condition_averages_dict[condition], count_condition_amount = collect_sentiment_score_from_dialogue_data(file, count_condition_amount, sum_of_values_positive, sum_of_values_negative, condition)
     
     create_dialogue_results_file(condition_averages_dict, file_name_dialogue, discovered_conditions)
-    
+    create_prolific_data_file(condition_averages_dict, file_name_prolific, prolific_column_numbers, discovered_conditions)
     #path__results_profilic = './results/Qualtric_Results_'
     #conc_fn_results_prolific = path_profilic + str(file_name_qualtric)
     #path_prolific_docs_folder = './docs/prolific_docs/'
