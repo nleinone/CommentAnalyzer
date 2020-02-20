@@ -34,8 +34,8 @@ import csv
 #print("\n: " + str())
 #REFERENCES:
 #https://realpython.com/python-csv/
-    
-def collect_sentiment_score_from_dialogue_data(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, condition):
+
+def collect_sentiment_score_from_data(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, condition):
     '''Collect sentiment scores using given column location indicators'''
     
     csv_reader = csv.reader(file, delimiter='|')
@@ -43,7 +43,7 @@ def collect_sentiment_score_from_dialogue_data(file, count_identity_amount, sum_
     for row in csv_reader:
         #ingore headers
         try:
-            #ID key position: user id, comment, neg, pos, class, condition
+            #condition key position: user id, comment, neg, pos, class, condition
             if row[-1] == condition:
                 
                 user_ids.append(row[0])
@@ -174,46 +174,6 @@ def create_prolific_data_file(condition_averages_dict, file_name_prolific, proli
             writer.writerow(values)
             
     print("\nProlific data results saved in {}".format(result_file_path))
-    
-def create_qualtric_data_file(identity_averages_dict, conc_fn_profilic):
-    '''Create results file from the prolific data file'''
-    
-    print("\nCreating Prolific results file...", end="\r")
-    remove_previous_file(conc_fn_profilic)
-    
-    row_info = []
-    row_info.append('Chatbot Condition')
-    row_info.append('Average of Negative probability')
-    row_info.append('Average of Positive probability')
-    row_info.append('Sample size')
-    row_info.append('Average Questionnaire Score')
-    
-    #Create headers:
-    with open(conc_fn_profilic, 'a', newline='') as cfile:
-        writer = csv.writer(cfile)
-        writer.writerow(row_info)
-    cfile.close()
-    
-    for key in identity_averages_dict.keys():
-        row_info = []
-        values_for_id = identity_averages_dict[key]
-        avg_neg = values_for_id[0]
-        avg_pos = values_for_id[1]
-        sample_size = values_for_id[2]
-        question_score_avg = values_for_id[3]
-        
-        row_info.append(key)
-        row_info.append(avg_neg)
-        row_info.append(avg_pos)
-        row_info.append(sample_size)
-        row_info.append(question_score_avg)
-
-        with open(conc_fn_profilic, 'a', newline='') as cfile2:
-            writer = csv.writer(cfile2)
-            writer.writerow(row_info)
-            
-        cfile2.close()   
-    print("\nCreating Prolific results file...Done!")
 
 def create_dialogue_results_file(condition_averages_dict, file_name_dialogue, discovered_conditions):
     
@@ -254,8 +214,7 @@ def create_dialogue_results_file(condition_averages_dict, file_name_dialogue, di
     cfile.close()
     
     print('\nDialogue data results saved in: {}'.format(result_file_path))
-    
-    
+     
 def create_result_files(number_of_file_chunks_processed, discovered_conditions, keys, file_name_prolific, prolific_column_numbers, file_name_dialogue):
     '''Create conclusive results from processed document'''
     
@@ -270,18 +229,10 @@ def create_result_files(number_of_file_chunks_processed, discovered_conditions, 
         with open(individual_dialogue_result_path) as file:
             
             #Negative average, Positive average, amount of samples
-            condition_averages_dict[condition], count_condition_amount = collect_sentiment_score_from_dialogue_data(file, count_condition_amount, sum_of_values_positive, sum_of_values_negative, condition)
+            condition_averages_dict[condition], count_condition_amount = collect_sentiment_score_from_data(file, count_condition_amount, sum_of_values_positive, sum_of_values_negative, condition)
     
     create_dialogue_results_file(condition_averages_dict, file_name_dialogue, discovered_conditions)
     create_prolific_data_file(condition_averages_dict, file_name_prolific, prolific_column_numbers, discovered_conditions)
-    #path__results_profilic = './results/Qualtric_Results_'
-    #conc_fn_results_prolific = path_profilic + str(file_name_qualtric)
-    #path_prolific_docs_folder = './docs/prolific_docs/'
-    #prolific_file_path = path_prolific_docs_folder + str(file_name_prolific)
-    
-    #create_qualtric_data_file(identity_averages_dict, conc_fn_profilic)
-    #create_prolific_data_file(condition_averages_dict, file_name_prolific, prolific_column_numbers)
-    #print("\nProlific data results saved in {}".format(conc_fn_profilic))
     
 def save_to_csv(condition, user_answer, user_id, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, file_name_dialogue):
     ''''''
