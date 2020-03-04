@@ -12,7 +12,7 @@ def separate_comments_by_bot_identity(information_collection, keys):
     discovered_identities = []
     comment_list = []
     identities_list = []
-
+    
     #Search for all the unique bot identities, located last in the comment column
     for comment in information_collection:
         try:
@@ -67,7 +67,7 @@ def convert_file_to_list(line_count, file_name, number_of_lines_processed):
     lines_list = []
     counter = 0
 
-    with open('././docs/prolific_docs/' + file_name) as file:
+    with open('././docs/qualtric_docs/' + file_name) as file:
         file.seek(number_of_lines_processed)
         for i in range(line_count):
             try:
@@ -94,7 +94,6 @@ def file_line_counter(file):
     counter = 0
     for line in file:
         counter += 1
-    print("total line count: " + str(counter))
     
 def count_remaining_file_lines(file_name, number_of_lines_processed, max_line_count):
     '''Count, return, and print file lines'''
@@ -103,7 +102,7 @@ def count_remaining_file_lines(file_name, number_of_lines_processed, max_line_co
     counter = 0
     #print("\n number_of_lines_processed: " + str(number_of_lines_processed))
     #print("\n counter: " + str(counter))
-    with open('././docs/prolific_docs/' + file_name) as file:
+    with open('././docs/qualtric_docs/' + file_name) as file:
         file.seek(number_of_lines_processed)
         for i in range(max_line_count):
             try:
