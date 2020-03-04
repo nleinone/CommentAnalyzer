@@ -36,7 +36,6 @@ parser.add_argument('--age_index_prolific', help='The column number (CSV file fr
 parser.add_argument('--user_sex_index_prolific', help='The column number (CSV file from the Prolific) of the Prolific user sex value. Default=16')
 parser.add_argument('--user_student_status_index_prolific', help='The column number (CSV file from the Prolific) of the Prolific user student status value. Default=14')
 parser.add_argument('--user_first_language_index_prolific', help='The column number (CSV file from the Prolific) of the Prolific user first language information value. Default=17')
-parser.add_argument('--user_id_index_qualtric', help='The column number (CSV file from the Qualtric) of the Prolific user ID value. Default=42')
 parser.add_argument('--analyzed_text_index_qualtric', help='The column number (CSV file from the Qualtric) of the text which the sentiment analysis will be performed in pilot study. Default=-3')
 #parser.add_argument('--bottom_range', help='The lowest column number (CSV file from the Prolific) of the Prolific questionnaire with an answer with numeric value. Default=17')
 #parser.add_argument('--top_range', help='The highest column number (CSV file from the Prolific) of the Prolific questionnaire with an answer with numeric value. Default=40')
@@ -143,14 +142,6 @@ def check_cmd_arguments():
         user_first_language_index_prolific = 16
     
     try:
-        user_id_index_qualtric = sys.argv[11].split("=")
-        user_id_index_qualtric = int(user_id_index_qualtric[1]) - 1
-        print("User id column number in Prolific CSV File: " + str(user_id_index_qualtric + 1))
-    except Exception as e:
-        print("User id column number in Prolific CSV File: 42 (Default)")
-        user_id_index_qualtric = 41
-    
-    try:
         analyzed_text_index_qualtric = sys.argv[12].split("=")
         analyzed_text_index_qualtric = int(analyzed_text_index_qualtric[1]) - 1
         analyzed_text_index_qualtric = int(analyzed_text_index_qualtric)
@@ -158,20 +149,6 @@ def check_cmd_arguments():
     except Exception as e:
         print(Fore.YELLOW + "Analysed text column number in Qualtric CSV File: -3 (3rd last) (Default)")
         analyzed_text_index_qualtric = -3
-    
-    #try:
-    #    bottom_range = sys.argv[3].split("=")
-    #    top_range = sys.argv[4].split("=")
-    #    bottom_range = int(bottom_range[3]) - 1
-    #    top_range = int(top_range[4]) - 1
-
-    #    print("Bottom column number for question values in Prolific CSV File: " + str(bottom_range + 1))
-    #    print("Top column number for question values in Prolific CSV File: " + str(top_range + 1))
-    #except Exception as e:
-    #    bottom_range = 17
-    #    top_range = 39
-    #    print("Bottom column number for question values in Prolific CSV File: Column 18 (R) (Default)")
-    #    print("Top column number for question values in Prolific CSV File: Column 40 (AN) (Default)")
     
     max_line_count = 9999
     
@@ -184,14 +161,14 @@ def check_cmd_arguments():
     prolific_column_numbers.append(user_student_status_index_prolific)
     prolific_column_numbers.append(user_first_language_index_prolific)
     
-    return cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, user_timestamp_index_dialogue, prolific_column_numbers, user_id_index_qualtric, analyzed_text_index_qualtric, max_line_count
+    return cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, user_timestamp_index_dialogue, prolific_column_numbers, analyzed_text_index_qualtric, max_line_count
 
 if __name__ == '__main__':
     '''Main function for the script.
     Takes the following arguments as cmd line arguments (defaults declared):
     '''
 
-    cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, user_timestamp_index_dialogue, prolific_column_numbers, user_id_index_qualtric, analyzed_text_index_qualtric, max_line_count = check_cmd_arguments()
+    cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, user_timestamp_index_dialogue, prolific_column_numbers, analyzed_text_index_qualtric, max_line_count = check_cmd_arguments()
  
     start = time.time()
  
@@ -266,13 +243,9 @@ if __name__ == '__main__':
             all_comments, discovered_conditions = parsing_functions.separate_comments_by_condition(information_collection, keys, condition_index_dialogue, user_id_index_dialogue, user_timestamp_index_dialogue)
             save_counter = 0
             
-            print("\n len all_comments: " + str(len(all_comments)))
-            #print("\n discovered_conditions: " + str(discovered_conditions))
-            
             sum = 0
 
             for comment_set in all_comments:
-                print("\ncomment " + str(comment_set))
                 '''*** NATURAL LANGUAGE PREPROCESSING STARTS HERE***'''
                 #Preprocess user comments one bot mood data set at time:
                 for comment in comment_set:
@@ -286,9 +259,6 @@ if __name__ == '__main__':
                     user_id = comment[keys[user_id_index_dialogue]]
                     condition = comment[keys[condition_index_dialogue]]
                     
-                    print("\nuser_answer " + str(user_answer))
-                    #print("\nkeys: " + str(keys))
-                    #print("\n user_answer: " + str(user_answer))
                     #Tokenize comment
                     tokenized_comment = preprocessor.tokenize_comment(user_answer)
 
