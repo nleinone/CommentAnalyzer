@@ -8,6 +8,7 @@ parser.add_argument('--cross_validate', help='Perform a cross validation to the 
 parser.add_argument('--analyzed_text_location_qualtric', help='The column number of the text which the sentiment analysis will be performed in the Qualtric CSV file. Default=41')
 parser.add_argument('--user_id_location_qualtric', help='The column number of the user ID value in the Qualtric CSV file. Default=42')
 parser.add_argument('--duration_qualtric', help='The column number of the duration value in the Qualtric CSV file. Default=6')
+parser.add_argument('--condition_location_qualtric', help='The column number of the chatbot condition value in the Qualtric CSV file. Default=43')
 parser.add_argument('--user_id_location_prolific', help='The column number of the user ID value in the Prolific CSV file. Default=2')
 parser.add_argument('--age_location_prolific', help='The column number of the user age value in the Prolific CSV file. Default=7')
 parser.add_argument('--user_sex_location_prolific', help='The column number of the user sex value in the Prolific CSV file. Default=16')
@@ -64,7 +65,16 @@ def check_cmd_arguments():
         duration_qualtric = 5
     
     try:
-        user_id_location_prolific = sys.argv[5].split("=")
+        condition_location_qualtric = sys.argv[5].split("=")
+        condition_location_qualtric = int(condition_location_qualtric[1]) - 1
+        condition_location_qualtric = int(condition_location_qualtric)
+        print("Chatbot condition column number in Qualtric CSV File: " + str(int(condition_location_qualtric) + 1))
+    except Exception as e:
+        print(Fore.YELLOW + "Chatbot condition column number in Qualtric CSV File: 43 (Default)")
+        condition_location_qualtric = 42
+    
+    try:
+        user_id_location_prolific = sys.argv[6].split("=")
         user_id_location_prolific = int(user_id_location_prolific[1]) - 1
         print("User id column number in Prolific CSV File: " + str(user_id_location_prolific + 1))
     except Exception as e:
@@ -72,7 +82,7 @@ def check_cmd_arguments():
         user_id_location_prolific = 1
     
     try:
-        age_location_prolific = sys.argv[6].split("=")
+        age_location_prolific = sys.argv[7].split("=")
         age_location_prolific = int(age_location_prolific[1]) - 1
         print("User age column number in Prolific CSV File: " + str(age_location_prolific + 1))
     except Exception as e:
@@ -80,7 +90,7 @@ def check_cmd_arguments():
         age_location_prolific = 6
     
     try:
-        user_sex_location_prolific = sys.argv[7].split("=")
+        user_sex_location_prolific = sys.argv[8].split("=")
         user_sex_location_prolific = int(user_sex_location_prolific[1]) - 1
         print("User sex column number in Prolific CSV File: " + str(user_sex_location_prolific + 1))
     except Exception as e:
@@ -88,7 +98,7 @@ def check_cmd_arguments():
         user_sex_location_prolific = 15
     
     try:
-        user_student_status_location_prolific = sys.argv[8].split("=")
+        user_student_status_location_prolific = sys.argv[9].split("=")
         user_student_status_location_prolific = int(user_student_status_location_prolific[1]) - 1
         print("User student status column number in Prolific CSV File: " + str(user_student_status_location_prolific + 1))
     except Exception as e:
@@ -96,7 +106,7 @@ def check_cmd_arguments():
         user_student_status_location_prolific = 13
     
     try:
-        user_first_language_location_prolific = sys.argv[9].split("=")
+        user_first_language_location_prolific = sys.argv[10].split("=")
         user_first_language_location_prolific = int(user_first_language_location_prolific[1]) - 1
         print("User first language information column number in Prolific CSV File: " + str(user_first_language_location_prolific + 1))
     except Exception as e:
@@ -111,4 +121,4 @@ def check_cmd_arguments():
     prolific_column_numbers.append(user_student_status_location_prolific)
     prolific_column_numbers.append(user_first_language_location_prolific)
     
-    return cross_validate, analyzed_text_location_qualtric, user_id_location_qualtric, max_line_count, duration_qualtric, user_id_location_prolific, prolific_column_numbers
+    return cross_validate, analyzed_text_location_qualtric, user_id_location_qualtric, max_line_count, duration_qualtric, condition_location_qualtric, user_id_location_prolific, prolific_column_numbers

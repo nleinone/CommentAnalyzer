@@ -28,7 +28,7 @@ if __name__ == '__main__':
     Takes the following arguments as cmd line arguments (defaults declared):
     '''
 
-    cross_validate, analyzed_text_location_qualtric, user_id_qualtric_location, max_line_count, duration_qualtric,user_id_prolific_location, prolific_column_numbers = command_arguments.check_cmd_arguments()
+    cross_validate, analyzed_text_location_qualtric, user_id_qualtric_location, max_line_count, duration_qualtric, condition_location_qualtric, user_id_prolific_location, prolific_column_numbers = command_arguments.check_cmd_arguments()
  
     start = time.time()
  
@@ -55,9 +55,9 @@ if __name__ == '__main__':
         lines_left_to_process = True
         number_of_file_chunks_processed = 0
 
-        file_name = './results/individual_file_results/results_' + str(file_name_qualtric) + "_" + str(number_of_file_chunks_processed) + '.csv'
-        if os.path.isfile(file_name):
-            os.remove(file_name)
+        qualtric_result_file_name = './results/individual_file_results/results_' + str(file_name_qualtric) + "_" + str(number_of_file_chunks_processed) + '.csv'
+        if os.path.isfile(qualtric_result_file_name):
+            os.remove(qualtric_result_file_name)
 
         line_counter = 0
         while(lines_left_to_process):
@@ -129,10 +129,10 @@ if __name__ == '__main__':
                     probability_result = classifier.prob_classify(normalized_comment_feature_set)
                     
                     #Create results file:
-                    save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys, file_name)
+                    save_counter = classifier_utils.print_statistics(probability_result, classifier, normalized_comment_feature_set, comment, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keys, qualtric_result_file_name)
                     
                     #Create conclusive results from previously created results file:
-            classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, file_name, file_name_qualtric, file_name_prolific, user_id_qualtric_location, user_id_prolific_location, prolific_column_numbers)
+            classifier_utils.create_conclusive_results_file(number_of_file_chunks_processed, discovered_identities, keys, qualtric_result_file_name, file_name_qualtric, file_name_prolific, user_id_qualtric_location, user_id_prolific_location, prolific_column_numbers, duration_qualtric, condition_location_qualtric)
             number_of_file_chunks_processed += 1
 
             #For possible file chunking operations in case of big data.
