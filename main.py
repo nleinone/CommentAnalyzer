@@ -5,7 +5,7 @@ from colorama import Fore, init, Style
 #Add colours:
 init()
 
-from parsing import parsing_functions
+from parsing import parsing_functions, command_arguments
 from preprocessing import preprocessor
 from sentiment_analyser import configure_classifiers
 from sentiment_analyser import classifier_utils
@@ -23,127 +23,12 @@ https://pypi.org/project/colorama/
 
 '''
 
-#Add command line arguments with describtions:
-import argparse
-parser=argparse.ArgumentParser()
-parser.add_argument('--cross_validate', help='Perform a cross validation to the classifier training data with 1/5 split. Input: 0 (Default) = False, 1 = True')
-parser.add_argument('--analyzed_text_location', help='The column number (CSV file from the Prolific) of the text which the sentiment analysis will be performed. Default=-3')
-parser.add_argument('--user_id_location', help='The column number (CSV file from the Prolific) of the Prolific user ID value. Default=42')
-parser.add_argument('--user_id_qualtr_location', help='The column number (CSV file from the Qualtric) of the Qualtric user ID value. Default=2')
-parser.add_argument('--age_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user age value. Default=7')
-parser.add_argument('--user_sex_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user sex value. Default=16')
-parser.add_argument('--user_student_sts_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user student status value. Default=14')
-parser.add_argument('--user_first_language_location_qualtr', help='The column number (CSV file from the Qualtric) of the Qualtric user first language information value. Default=17')
-
-args=parser.parse_args()
-
-def check_cmd_arguments():
-    '''Check the input values given via command line arguments
-    Cross_validate_classifier == 0
-    Analysed_text_column_location = -3 (3rd last by default)
-    Range of question values to be collected:
-    bottom_range = 18 (Default)
-    top_range = 40 (Default)
-    User-id column number = 8
-    '''
-    print(Fore.YELLOW)
-    try:
-        cross_validate = sys.argv[1].split("=")
-        cross_validate = cross_validate[1]
-        if cross_validate == "1":
-            print("Cross validate: True")
-            cross_validate = True
-        elif cross_validate == "0":
-            print("Cross validate: False")
-            cross_validate = False
-        else:
-            print("Cross validate: False (Default)")
-            cross_validate == False
-    except Exception as e:
-        print("Cross validate: False (Default)")
-        cross_validate = False 
-    
-    try:
-        Analysed_text_column_location = sys.argv[2].split("=")
-        Analysed_text_column_location = int(Analysed_text_column_location[1]) - 1
-        Analysed_text_column_location = int(Analysed_text_column_location)
-        print("Analysed text column number in Prolific CSV File: " + str(int(Analysed_text_column_location) + 1))
-    except Exception as e:
-        print(Fore.YELLOW + "Analysed text column number in Prolific CSV File: -3 (3rd last) (Default)")
-        Analysed_text_column_location = -3
-    
-    try:
-        user_id_qualtric_location = sys.argv[5].split("=")
-        user_id_qualtric_location = int(user_id_qualtric_location[1]) - 1
-        print("User id column number in Prolific CSV File: " + str(user_id_qualtric_location + 1))
-    except Exception as e:
-        print("User id column number in Prolific CSV File: 42 (Default)")
-        user_id_qualtric_location = 41
-    
-    max_line_count = 9999
-    
-    try:
-        user_id_prolific_location = sys.argv[6].split("=")
-        user_id_prolific_location = int(user_id_prolific_location[1]) - 1
-        print("User id column number in Qualtric CSV File: " + str(user_id_prolific_location + 1))
-    except Exception as e:
-        print("User id column number in Qualtric CSV File: 2 (Default)")
-        user_id_prolific_location = 1
-    
-    try:
-        age_location = sys.argv[7].split("=")
-        age_location = int(age_location[1]) - 1
-        print("User age column number in Qualtric CSV File: " + str(age_location + 1))
-    except Exception as e:
-        print("User age column number in Qualtric CSV File: 7 (Default)")
-        age_location = 6
-    
-    try:
-        sex_location = sys.argv[8].split("=")
-        sex_location = int(sex_location[1]) - 1
-        print("User sex column number in Qualtric CSV File: " + str(sex_location + 1))
-    except Exception as e:
-        print("User sex column number in Qualtric CSV File: 16 (Default)")
-        sex_location = 15
-    
-    try:
-        students_location = sys.argv[9].split("=")
-        students_location = int(students_location[1]) - 1
-        print("User student status column number in Qualtric CSV File: " + str(students_location + 1))
-    except Exception as e:
-        print("User student status column number in Qualtric CSV File: 14 (Default)")
-        students_location = 13
-    
-    try:
-        en_first_lang_location = sys.argv[10].split("=")
-        en_first_lang_location = int(en_first_lang_location[1]) - 1
-        print("User first language information column number in Qualtric CSV File: " + str(en_first_lang_location + 1))
-    except Exception as e:
-        print("User first language information column number in Qualtric CSV File: 17 (Default)")
-        en_first_lang_location = 16
-    
-    
-    print(Style.RESET_ALL)
-    
-    #qualtric_column_numbers:
-    #qualtric_column_numbers[0] = age_location 7
-    #qualtric_column_numbers[1] = sex_location 16
-    #qualtric_column_numbers[3] = students_location 14
-    #qualtric_column_numbers[4] = en_first_lang_location 17
-    prolific_column_numbers = []
-    prolific_column_numbers.append(age_location)
-    prolific_column_numbers.append(sex_location)
-    prolific_column_numbers.append(students_location)
-    prolific_column_numbers.append(en_first_lang_location)
-    
-    return cross_validate, Analysed_text_column_location, user_id_qualtric_location, max_line_count, user_id_prolific_location, prolific_column_numbers
-
 if __name__ == '__main__':
     '''Main function for the script.
     Takes the following arguments as cmd line arguments (defaults declared):
     '''
 
-    cross_validate, Analysed_text_column_location, user_id_qualtric_location, max_line_count, user_id_prolific_location, prolific_column_numbers = check_cmd_arguments()
+    cross_validate, analyzed_text_location_qualtric, user_id_qualtric_location, max_line_count, duration_qualtric,user_id_prolific_location, prolific_column_numbers = command_arguments.check_cmd_arguments()
  
     start = time.time()
  
@@ -217,7 +102,7 @@ if __name__ == '__main__':
                     #                 [-3]: Free description question (Default location)
 
                     training_mode = False
-                    user_answer = comment[keys[Analysed_text_column_location]]
+                    user_answer = comment[keys[analyzed_text_location_qualtric]]
                     
                     #Tokenize comment
                     tokenized_comment = preprocessor.tokenize_comment(user_answer)
