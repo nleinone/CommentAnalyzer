@@ -28,7 +28,7 @@ if __name__ == '__main__':
     Takes the following arguments as cmd line arguments (defaults declared):
     '''
 
-    cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, user_timestamp_index_dialogue, prolific_column_numbers, analyzed_text_index_qualtric, max_line_count = command_arguments.check_cmd_arguments()
+    cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count = command_arguments.check_cmd_arguments()
  
     start = time.time()
  
@@ -100,7 +100,7 @@ if __name__ == '__main__':
                 
             #print("\information_collection0 " + str(information_collection[:5]))
             #sys.exit()
-            all_comments, discovered_conditions = parsing_functions.separate_comments_by_condition(information_collection, keys, condition_index_dialogue, user_id_index_dialogue, user_timestamp_index_dialogue)
+            all_comments, discovered_conditions = parsing_functions.separate_comments_by_condition(information_collection, keys, condition_index_dialogue, user_id_index_dialogue)
             save_counter = 0
             
             sum = 0
@@ -147,7 +147,7 @@ if __name__ == '__main__':
                     
                     #Comment info to be saved:
                     cleaned_comment_len = len(normalized_comment_unigram[0])
-                    print("clean comment: " + str(cleaned_comment_len))
+                    #print("clean comment: " + str(cleaned_comment_len))
                     pos_tag_counts = preprocessor.get_pos_tag_counts(normalized_comment_unigram[0])
                     
                     

@@ -82,10 +82,10 @@ def get_pos_tag_counts(cleaned_comment):
         if pos_tag_first_letter == 'J':
             adj_count = adj_count + 1
     
-    print("\nPos tag comment: " + str(pos_tagged_comment))
-    print("\nverb_count: " + str(verb_count))
-    print("\nnoun_count: " + str(noun_count))
-    print("\nadj_count: " + str(adj_count))
+    #print("\nPos tag comment: " + str(pos_tagged_comment))
+    #print("\nverb_count: " + str(verb_count))
+    #print("\nnoun_count: " + str(noun_count))
+    #print("\nadj_count: " + str(adj_count))
     
     pos_tags.append(verb_count)
     pos_tags.append(noun_count)

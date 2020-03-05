@@ -163,15 +163,15 @@ def create_prolific_data_file(condition_averages_dict, file_name_prolific, proli
                     try:
                         if row[user_id_index] == user_id:
                             ages.append(row[age_index])
-                            print("\nsex" + str(sex_index))
-                            print("\nstudent" + str(students_status_index))
-                            print("\nlang" + str(en_first_lang_index))
+                            #print("\nsex" + str(sex_index))
+                            #print("\nstudent" + str(students_status_index))
+                            #print("\nlang" + str(en_first_lang_index))
                             if row[sex_index] == "Male":
-                                print("\n1")
+                                #print("\n1")
                                 males += 1
                             
                             if row[sex_index] == "Female":
-                                print("\n2")
+                                #print("\n2")
                                 females += 1
                             if row[students_status_index] == "Yes":
                                 students += 1
@@ -227,11 +227,11 @@ def create_dialogue_results_file(condition_averages_dict, file_name_dialogue, di
     cfile.close()
     
     for condition in discovered_conditions:
-        print("\ndiscovered_conditions: " + str(discovered_conditions))
-        print("\ncondition: " + str(condition))
+        #print("\ndiscovered_conditions: " + str(discovered_conditions))
+        #print("\ncondition: " + str(condition))
         values = []
         condition_specific_info_set = condition_averages_dict[condition]
-        print("\ncondition_specific_info_set" + str(condition_specific_info_set))
+        #print("\ncondition_specific_info_set" + str(condition_specific_info_set))
         values.append(condition)
         values.append(condition_specific_info_set[1])
         values.append(condition_specific_info_set[0])

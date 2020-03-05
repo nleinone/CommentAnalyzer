@@ -24,7 +24,7 @@ def extract_user_ids(information_collection, user_id_index_dialogue, keys):
     #print("\n user_ids: " + str(user_ids))
     return user_ids
 
-def parse_relevant_comments(information_collection, user_id_index_dialogue, user_timestamp_index_dialogue, keys, user_id_collection):
+def parse_relevant_comments(information_collection, user_id_index_dialogue, keys, user_id_collection):
     '''Parses the relevant comments from the dialogue data file'''
     #Time stamp location
     #user id location
@@ -63,7 +63,7 @@ def parse_relevant_comments(information_collection, user_id_index_dialogue, user
     #print("\n relevant_information len: " + str(len(relevant_information)))
     return relevant_information
 
-def separate_comments_by_condition(information_collection, keys, condition_index_dialogue, user_id_index_dialogue, user_timestamp_index_dialogue):
+def separate_comments_by_condition(information_collection, keys, condition_index_dialogue, user_id_index_dialogue):
     """Return different bot identities as a list of lists. For example: [happy_bot_comments, happysad_bot_comments, sad_bot_comments, neutral_bot_comments, hello_bot_comments]"""
     
     #print("\nkeys: " + str(keys))
@@ -81,7 +81,7 @@ def separate_comments_by_condition(information_collection, keys, condition_index
     #print("\n information_collection1: " + str(len(information_collection)))
     #Parse only the last dialogue data:
     user_id_collection = extract_user_ids(information_collection, user_id_index_dialogue, keys)
-    relevant_information = parse_relevant_comments(information_collection, user_id_index_dialogue, user_timestamp_index_dialogue, keys, user_id_collection)
+    relevant_information = parse_relevant_comments(information_collection, user_id_index_dialogue, keys, user_id_collection)
     
     #print("\n relevant_information1: " + str(len(relevant_information)))
     
@@ -195,7 +195,7 @@ def file_line_counter(file):
     counter = 0
     for line in file:
         counter += 1
-    print("total line count: " + str(counter))
+    #print("total line count: " + str(counter))
     
 def count_remaining_file_lines(file_name, number_of_lines_processed, max_line_count):
     '''Count, return, and print file lines'''
