@@ -47,17 +47,17 @@ def parse_relevant_comments(information_collection, user_id_index_dialogue, user
         
         for comment in information_collection[1:]:
             #print("\n comment[user_id_header]: " + str(comment[user_id_header]))
-            print("\n user_id: " + str(user_id))
+            #print("\n user_id: " + str(user_id))
             
             if comment[user_id_header] == user_id:
                 
                 gathered_comments.append(comment)
-                print("\n comment to gathered_comments: " + str(comment))
+                #print("\n comment to gathered_comments: " + str(comment))
                 
         
         #print("\n gathered_comments: " + str(gathered_comments))
         relevant_information.append(gathered_comments[-1])
-        print("\n gathered_comments [-1]: " + str(gathered_comments[-1]))
+        #print("\n gathered_comments [-1]: " + str(gathered_comments[-1]))
         gathered_comments = []
     #print("\n relevant_information: " + str(relevant_information))
     #print("\n relevant_information len: " + str(len(relevant_information)))

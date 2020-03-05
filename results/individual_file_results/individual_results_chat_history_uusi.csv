@@ -1,19 +1,19 @@
-User ID|Comment|Negative probability|Positive probability|Classification|Condition
-55d0761e34e9060012e5782a|alright so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C01
-57f73fdb8079d200017d7af6|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C01
-5c8eb16ed169ac0001c27629|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C01
-LJrzXMD88oZj|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C01
-banana|alright so how do we|0.6333333333333331|0.36666666666666664|Somewhat negative|C01
-simo|i am working|0.5|0.5|Neutral|C01
-56bb6812bf2129000b53ce26|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C03
-5a463b8c56ec1100014a3100|alright so how do we start|0.6420081503282773|0.35799184967172265|Somewhat negative|C03
-5c86a1d397d50d0001d81b0c|i am working currently.|0.5|0.5|Neutral|C03
-5cd6eff7cc98b20019852039|alright, so how do we get started? |0.6491464510332433|0.35085354896675636|Somewhat negative|C03
-5d30b151d6cd7d0001b35ab1|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C03
-simorealtest|alright, so how do we get|0.6491464510332433|0.35085354896675636|Somewhat negative|C03
-5a5e3a1f76d1c60001ab6048|alright so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C00
-5bd869bf92162c00019c1a54|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C02
-5c35663a24643200010e7e15|so how do i get started?|0.5171796707229778|0.4828203292770222|Neutral|C02
-C7Hr3KR8FrfR|alright, so how do we get |0.6491464510332433|0.35085354896675636|Somewhat negative|C02
-XhCGqXmCCsSJ|bye|0.5833333333333333|0.4166666666666665|Neutral|happysad
-hIS6zjINafWF|i would like to ask about a mortgage.|0.6149267858977819|0.38507321410221856|Somewhat negative|undefined
+User ID|Comment|Negative probability|Positive probability|Classification|Condition|Comment length|Verb count|Noun count|Adjective count
+55d0761e34e9060012e5782a|alright so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C01|3|1|1|1
+57f73fdb8079d200017d7af6|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C01|3|1|1|1
+5c8eb16ed169ac0001c27629|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C01|3|1|1|1
+LJrzXMD88oZj|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C01|3|1|1|1
+banana|alright so how do we|0.6333333333333331|0.36666666666666664|Somewhat negative|C01|1|0|1|0
+simo|i am working|0.5|0.5|Neutral|C01|1|1|0|0
+56bb6812bf2129000b53ce26|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C03|3|1|1|1
+5a463b8c56ec1100014a3100|alright so how do we start|0.6420081503282773|0.35799184967172265|Somewhat negative|C03|2|0|1|1
+5c86a1d397d50d0001d81b0c|i am working currently.|0.5|0.5|Neutral|C03|2|1|0|0
+5cd6eff7cc98b20019852039|alright, so how do we get started? |0.6491464510332433|0.35085354896675636|Somewhat negative|C03|3|1|1|1
+5d30b151d6cd7d0001b35ab1|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C03|3|1|1|1
+simorealtest|alright, so how do we get|0.6491464510332433|0.35085354896675636|Somewhat negative|C03|2|0|2|0
+5a5e3a1f76d1c60001ab6048|alright so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C00|3|1|1|1
+5bd869bf92162c00019c1a54|alright, so how do we get started?|0.6491464510332433|0.35085354896675636|Somewhat negative|C02|3|1|1|1
+5c35663a24643200010e7e15|so how do i get started?|0.5171796707229778|0.4828203292770222|Neutral|C02|2|1|1|0
+C7Hr3KR8FrfR|alright, so how do we get |0.6491464510332433|0.35085354896675636|Somewhat negative|C02|2|0|2|0
+XhCGqXmCCsSJ|bye|0.5833333333333333|0.4166666666666665|Neutral|happysad|1|0|1|0
+hIS6zjINafWF|i would like to ask about a mortgage.|0.6149267858977819|0.38507321410221856|Somewhat negative|undefined|4|1|1|1

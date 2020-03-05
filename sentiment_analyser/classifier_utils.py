@@ -35,7 +35,7 @@ import csv
 #REFERENCES:
 #https://realpython.com/python-csv/
 
-def collect_sentiment_score_from_data(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, condition):
+def collect_sentiment_score_from_data(file, count_identity_amount, sum_of_values_positive, sum_of_values_negative, condition, sum_of_word_len, sum_of_VB, sum_of_NN, sum_of_JJ):
     '''Collect sentiment scores using given column location indicators'''
     
     csv_reader = csv.reader(file, delimiter='|')
@@ -43,22 +43,47 @@ def collect_sentiment_score_from_data(file, count_identity_amount, sum_of_values
     for row in csv_reader:
         #ingore headers
         try:
-            #condition key position: user id, comment, neg, pos, class, condition
-            if row[-1] == condition:
+            #condition key position: user id, comment, neg, pos, class, condition, comment len, vb, nn, jj
+            if row[5] == condition:
                 
                 user_ids.append(row[0])
                 count_identity_amount += 1
                 positive_prob = row[3]
                 negative_prob = row[2]
+                cleaned_comment_len = row[6]
+                VB_count = row[7]
+                NN_count = row[8]
+                JJ_count = row[9]
+                
+                sum_of_VB = sum_of_VB + int(VB_count)
+                sum_of_NN = sum_of_NN + int(NN_count)
+                sum_of_JJ = sum_of_JJ + int(JJ_count)
+                
+                sum_of_word_len = sum_of_word_len + int(cleaned_comment_len)
                 sum_of_values_positive = sum_of_values_positive + float(positive_prob)
                 sum_of_values_negative = sum_of_values_negative + float(negative_prob)
-               
+                
+                try:
+                    negative_avg = sum_of_values_negative / count_identity_amount
+                    positive_avg = sum_of_values_positive / count_identity_amount
+                    word_len_avg = sum_of_word_len / count_identity_amount
+                    VB_avg = sum_of_VB / count_identity_amount
+                    NN_avg = sum_of_NN / count_identity_amount
+                    JJ_avg = sum_of_JJ / count_identity_amount
+                except ZeroDivisionError as e:
+                    negative_avg = sum_of_values_negative / 1
+                    positive_avg = sum_of_values_positive / 1
+                    word_len_avg = sum_of_word_len / 1
+                    VB_avg = sum_of_VB / 1
+                    NN_avg = sum_of_NN / 1
+                    JJ_avg = sum_of_JJ / 1
+                    
         except ValueError:
             continue
             
     print("\nCollecting sentiment scores for condition: {}...Done!".format(condition))
-    return [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount, user_ids], count_identity_amount
-
+    return [negative_avg, positive_avg, count_identity_amount, user_ids, word_len_avg, VB_avg, NN_avg, JJ_avg], count_identity_amount
+    
 def remove_previous_file(conc_fn_profilic):
     '''Check and remove previously created file'''
     #Remove previous file:
@@ -155,9 +180,9 @@ def create_prolific_data_file(condition_averages_dict, file_name_prolific, proli
                             total_number += 1    
 
                     except IndexError:
-                        continue
-                        
-        file.close()
+                        continue  
+            file.close()
+
         avg_age = calculate_average_age(ages)
     
         #Add collected data to the condition result file:
@@ -176,14 +201,18 @@ def create_prolific_data_file(condition_averages_dict, file_name_prolific, proli
     print("\nProlific data results saved in {}".format(result_file_path))
 
 def create_dialogue_results_file(condition_averages_dict, file_name_dialogue, discovered_conditions):
-    
-    #{condition: [sum_of_values_negative / count_identity_amount, sum_of_values_positive / count_identity_amount, count_identity_amount, user_ids]}
+    """Create results file consisting all information gathered from the data file, with averages calculated for each chat bot condition"""
+    #{condition: [sum_of_values_negative, sum_of_values_positive, count_identity_amount, user_ids, word count, VB, NN, JJ]}
     
     row_info = []
     row_info.append('Condition')
     row_info.append('Avg. Propability of Positive Sentiment')
     row_info.append('Avg. Propability of Negative Sentiment')
     row_info.append('Sample Size')
+    row_info.append('Average word length')
+    row_info.append('Average verb count')
+    row_info.append('Average noun count')
+    row_info.append('Average adjective count')
     
     result_path_folder = './results/'
     results_file_name_dialogue = 'results_' + file_name_dialogue
@@ -202,10 +231,15 @@ def create_dialogue_results_file(condition_averages_dict, file_name_dialogue, di
         print("\ncondition: " + str(condition))
         values = []
         condition_specific_info_set = condition_averages_dict[condition]
+        print("\ncondition_specific_info_set" + str(condition_specific_info_set))
         values.append(condition)
         values.append(condition_specific_info_set[1])
         values.append(condition_specific_info_set[0])
         values.append(condition_specific_info_set[2])
+        values.append(condition_specific_info_set[4])
+        values.append(condition_specific_info_set[5])
+        values.append(condition_specific_info_set[6])
+        values.append(condition_specific_info_set[7])
         
         with open(result_file_path, 'a', newline='') as cfile:
             writer = csv.writer(cfile)
@@ -226,16 +260,21 @@ def create_result_files(number_of_file_chunks_processed, discovered_conditions, 
         count_condition_amount = 0
         sum_of_values_positive = 0
         sum_of_values_negative = 0
+        sum_of_word_len = 0
+        sum_of_VB = 0
+        sum_of_NN = 0
+        sum_of_JJ = 0
+        
         with open(individual_dialogue_result_path) as file:
             
             #Negative average, Positive average, amount of samples
-            condition_averages_dict[condition], count_condition_amount = collect_sentiment_score_from_data(file, count_condition_amount, sum_of_values_positive, sum_of_values_negative, condition)
+            condition_averages_dict[condition], count_condition_amount = collect_sentiment_score_from_data(file, count_condition_amount, sum_of_values_positive, sum_of_values_negative, condition, sum_of_word_len, sum_of_VB, sum_of_NN, sum_of_JJ)
     
     create_dialogue_results_file(condition_averages_dict, file_name_dialogue, discovered_conditions)
     create_prolific_data_file(condition_averages_dict, file_name_prolific, prolific_column_numbers, discovered_conditions)
     
-def save_to_csv(condition, user_answer, user_id, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, file_name_dialogue):
-    ''''''
+def save_to_csv(condition, user_answer, user_id, keys, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, file_name_dialogue, clean_comment_len, pos_tag_counts):
+    '''Save information for each individual comment in the data file.'''
     #Add other information:'
     individual_dialogue_result_path = './results/individual_file_results/individual_results_' + file_name_dialogue 
     
@@ -250,6 +289,11 @@ def save_to_csv(condition, user_answer, user_id, keys, prob_neg, prob_pos, class
         row_info.append('Positive probability')
         row_info.append('Classification')
         row_info.append('Condition')
+        row_info.append('Comment length')
+        row_info.append('Verb count')
+        row_info.append('Noun count')
+        row_info.append('Adjective count')
+        
         #print("row_info: " + str(row_info))
         with open(individual_dialogue_result_path, 'a', newline='') as file:
             writer = csv.writer(file, delimiter="|")
@@ -264,7 +308,11 @@ def save_to_csv(condition, user_answer, user_id, keys, prob_neg, prob_pos, class
     values.append(prob_pos)
     values.append(classification)
     values.append(condition)
-
+    values.append(clean_comment_len)
+    values.append(pos_tag_counts[0])
+    values.append(pos_tag_counts[1])
+    values.append(pos_tag_counts[2])
+    
     with open(individual_dialogue_result_path, 'a', newline='') as file:
         writer = csv.writer(file, delimiter="|")
         writer.writerow(values)
@@ -273,7 +321,7 @@ def save_to_csv(condition, user_answer, user_id, keys, prob_neg, prob_pos, class
     save_counter = 1
     return save_counter
      
-def print_statistics(condition, probability_result, nb_classifier, normalized_comment_feature_set, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keyes, file_name_dialogue, user_answer, user_id):
+def print_statistics(condition, probability_result, nb_classifier, normalized_comment_feature_set, classifier_accuracy_values, cross_validate, save_counter, number_of_file_chunks_processed, keyes, file_name_dialogue, user_answer, user_id, clean_comment_len, pos_tag_counts):
     '''Print various different statistics about the client response.'''
 
     prob_pos = probability_result.prob("pos")
@@ -331,7 +379,7 @@ def print_statistics(condition, probability_result, nb_classifier, normalized_co
     #print('************************************\n')
 
     
-    save_counter = save_to_csv(condition, user_answer, user_id, keyes, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, file_name_dialogue)
+    save_counter = save_to_csv(condition, user_answer, user_id, keyes, prob_neg, prob_pos, classification, save_counter, number_of_file_chunks_processed, file_name_dialogue, clean_comment_len, pos_tag_counts)
 
     return save_counter
 
