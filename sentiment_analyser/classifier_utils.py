@@ -480,17 +480,24 @@ def extract_features_bigram(words_clean, training_mode):
 
     return words_dictionary
 
-def extract_features(clean_words_uni, clean_words_bigram, training_mode):
+def extract_features(clean_words_uni, clean_words_bigram, training_mode, use_bigrams):
     '''Combine unigram features and bigram features'''
 
     uni_features = extract_feature_unigram(clean_words_uni, training_mode)
     bigram_features = extract_features_bigram(clean_words_bigram, training_mode)
+    
     features = uni_features.copy()
-    features.update(bigram_features)
+    print("bigram: ")
+    print(use_bigrams)
+    if use_bigrams == True:
+        #print("bigram added")
+        #print(use_bigrams)
+        features.update(bigram_features)
+        
 
     return features
 
-def create_word_feature_sets():
+def create_word_feature_sets(use_bigrams):
     """Create word feature set to train the classifier"""
 
     positive_reviews_uni, negative_reviews_uni, positive_reviews_bigram, negative_reviews_bigram = divide_and_clean_reviews()
@@ -499,12 +506,12 @@ def create_word_feature_sets():
     feature_set_positive = []
 
     for clean_words_uni, clean_words_bigram in zip(positive_reviews_uni, positive_reviews_bigram):
-        feature_set_positive.append((extract_features(clean_words_uni, clean_words_bigram, training_mode), 'pos'))
+        feature_set_positive.append((extract_features(clean_words_uni, clean_words_bigram, training_mode, use_bigrams), 'pos'))
 
     feature_set_negative = []
 
     for clean_words_uni, clean_words_bigram in zip(negative_reviews_uni, negative_reviews_bigram):
-        feature_set_negative.append((extract_features(clean_words_uni, clean_words_bigram, training_mode), 'neg'))
+        feature_set_negative.append((extract_features(clean_words_uni, clean_words_bigram, training_mode, use_bigrams), 'neg'))
 
     return feature_set_positive, feature_set_negative
 
@@ -534,10 +541,10 @@ def split_data(feature_set_positive, feature_set_negative, fold):
 
     return training_and_test_data, all_training_data
 
-def get_training_and_test_data(fold):
+def get_training_and_test_data(fold, use_bigrams):
     '''Top function for training and test data parsing, shuffling and splitting'''
 
-    feature_set_positive, feature_set_negative = create_word_feature_sets()
+    feature_set_positive, feature_set_negative = create_word_feature_sets(use_bigrams)
     shuffle(feature_set_positive)
     shuffle(feature_set_negative)
 

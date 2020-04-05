@@ -12,7 +12,6 @@ def extract_user_ids(information_collection, user_id_index_dialogue, keys):
     
     user_id_header = keys[user_id_index_dialogue]
     
-    
     for comment in information_collection:
         try:
             #print("\n comment: " + str(comment))
@@ -31,7 +30,7 @@ def parse_relevant_comments(information_collection, user_id_index_dialogue, keys
     #print("\ninformation_collection: " + str(information_collection))
     
     user_id_header = keys[user_id_index_dialogue]
-    #print("\n keys: " + str(keys))
+    print("\n keys: " + str(keys))
     
     #timestamps = []
     relevant_information = []
@@ -43,17 +42,23 @@ def parse_relevant_comments(information_collection, user_id_index_dialogue, keys
     
     #print("\n information_collection: " + str(information_collection[0]))
     
+    #print("\n user_id_collection: " + str(len(user_id_collection)))
+    #print("\n information_collection: " + str(len(information_collection)))
+
     for user_id in user_id_collection[1:]:
-        
         for comment in information_collection[1:]:
             #print("\n comment[user_id_header]: " + str(comment[user_id_header]))
             #print("\n user_id: " + str(user_id))
-            
+            #print("\n comment: " + str(comment))
+            #try:
             if comment[user_id_header] == user_id:
-                
-                gathered_comments.append(comment)
-                #print("\n comment to gathered_comments: " + str(comment))
-                
+                if len(comment.keys()) ==  len(keys):
+                    gathered_comments.append(comment)
+                    #print("\n comment to gathered_comments: " + str(comment))
+                #print("\n comment to gathered_comments len: " + str(len(comment.keys())))
+            #except KeyError as e:
+                #print(e)
+                #pass
         
         #print("\n gathered_comments: " + str(gathered_comments))
         relevant_information.append(gathered_comments[-1])
@@ -61,6 +66,7 @@ def parse_relevant_comments(information_collection, user_id_index_dialogue, keys
         gathered_comments = []
     #print("\n relevant_information: " + str(relevant_information))
     #print("\n relevant_information len: " + str(len(relevant_information)))
+    print("\n relevant_information: " + str(len(relevant_information)))
     return relevant_information
 
 def separate_comments_by_condition(information_collection, keys, condition_index_dialogue, user_id_index_dialogue):
@@ -133,8 +139,9 @@ def clean_up_dictionaries(information_dictionary, keys):
     
 def distinguish_information(file_line, is_header, keys):
     '''Convert line to dictionary with following keyes: user_name, time, bot_identity, bot_answer, user_answer'''
-
+    #print("\nLine: " + str(file_line))
     file_line_splitted = file_line.split('"')
+    #print("\nfile_line_splitted: " + str(file_line_splitted))
     information_dictionary = {}
     
     d, file_line_splitted = clean_up_dictionaries({}, file_line_splitted)
@@ -153,9 +160,12 @@ def distinguish_information(file_line, is_header, keys):
 
     else:
         #if len(file_line_splitted) == len(keys):
+        #try:
         for index in range(len(keys)):
             information_dictionary[keys[index]] = file_line_splitted[index]
-
+        #except IndexError as e:
+            #print(e)
+            #pass
     #Clean up the word dictionary:
     information_dictionary, keys = clean_up_dictionaries(information_dictionary, keys)
     

@@ -28,8 +28,7 @@ if __name__ == '__main__':
     Takes the following arguments as cmd line arguments (defaults declared):
     '''
 
-    cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count = command_arguments.check_cmd_arguments()
- 
+    cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count, use_bigrams = command_arguments.check_cmd_arguments()
     start = time.time()
  
     '''Variables'''
@@ -39,7 +38,7 @@ if __name__ == '__main__':
     '''*** INITIAL CONFIGURATIONS ***'''
     print("Configuring classifiers...")
 
-    training_and_test_data, all_training_data = classifier_utils.get_training_and_test_data(cross_validations_fold_ratio)
+    training_and_test_data, all_training_data = classifier_utils.get_training_and_test_data(cross_validations_fold_ratio, use_bigrams)
     nb_classifier, average_values = configure_classifiers.configure_all(training_and_test_data, all_training_data, cross_validate)
     
     #classifier = ''
@@ -101,6 +100,8 @@ if __name__ == '__main__':
             #print("\information_collection0 " + str(information_collection[:5]))
             #sys.exit()
             all_comments, discovered_conditions = parsing_functions.separate_comments_by_condition(information_collection, keys, condition_index_dialogue, user_id_index_dialogue)
+            print("\ncond: " + str(len(discovered_conditions)))
+            print("\nall_comments: " + str(len(all_comments)))
             save_counter = 0
             
             sum = 0
@@ -137,9 +138,9 @@ if __name__ == '__main__':
                     normalized_comment_bigram = preprocessor.normalize_and_clean_comment(stopword_filtered_comment_bigram)
 
                     '''*** SENTIMENT ANALYSIS WITH NAIVE BAYES STARTS HERE***'''
-                    normalized_comment_feature_set_unigram = classifier_utils.extract_feature_unigram(normalized_comment_unigram, training_mode)
-                    normalized_comment_feature_set_bigram = classifier_utils.extract_features_bigram(normalized_comment_bigram, training_mode)
-                    normalized_comment_feature_set = classifier_utils.extract_features(normalized_comment_unigram, normalized_comment_bigram, training_mode)
+                    #normalized_comment_feature_set_unigram = classifier_utils.extract_feature_unigram(normalized_comment_unigram, training_mode)
+                    #normalized_comment_feature_set_bigram = classifier_utils.extract_features_bigram(normalized_comment_bigram, training_mode)
+                    normalized_comment_feature_set = classifier_utils.extract_features(normalized_comment_unigram, normalized_comment_bigram, training_mode, use_bigrams)
 
                     probability_result = classifier.prob_classify(normalized_comment_feature_set)
                     

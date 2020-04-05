@@ -1,4 +1,5 @@
 from colorama import Fore, init, Style
+import sys
 #Add colours:
 init()
 
@@ -14,6 +15,7 @@ parser.add_argument('--age_index_prolific', help='The column number of the user 
 parser.add_argument('--user_sex_index_prolific', help='The column number of the user sex value in the Prolific CSV file. Default=16')
 parser.add_argument('--user_student_status_index_prolific', help='The column number of the user student status value in the Prolific CSV file. Default=14')
 parser.add_argument('--user_first_language_index_prolific', help='The column number of the user first language information value in the Prolific CSV file. Default=17')
+parser.add_argument('--use_bigrams', help='If True, the classifier uses big. Default=17')
 
 args=parser.parse_args()
 
@@ -30,16 +32,17 @@ def check_cmd_arguments():
     try:
         cross_validate = sys.argv[1].split("=")
         cross_validate = cross_validate[1]
-        if cross_validate == "1":
+        if str(cross_validate) == "1":
             print("Cross validate: True")
             cross_validate = True
-        elif cross_validate == "0":
+        elif str(cross_validate) == "0":
             print("Cross validate: False")
             cross_validate = False
         else:
             print("Cross validate: False (Default)")
             cross_validate == False
     except Exception as e:
+        print("e: " + str(e))
         print("Cross validate: False (Default)")
         cross_validate = False 
     
@@ -106,6 +109,20 @@ def check_cmd_arguments():
     except Exception as e:
         print("User first language information column number in the Prolific CSV File: 17 (Default)")
         user_first_language_index_prolific = 16
+        
+    try:
+        use_bigrams = sys.argv[10].split("=")
+        use_bigrams = use_bigrams[1]
+        if use_bigrams.lower() == "false":
+            use_bigrams = False
+            print("Use bigrams in Feature Extraction: " + str(use_bigrams))
+        else:
+            use_bigrams = True
+            print("Use bigrams in Feature Extraction: " + str(use_bigrams))
+    except Exception as e:
+        print("e: " + str(e))
+        print("Use bigrams in Feature Extraction: True (Default)")
+        use_bigrams = True
     
     max_line_count = 9999
     
@@ -118,4 +135,4 @@ def check_cmd_arguments():
     prolific_column_numbers.append(user_student_status_index_prolific)
     prolific_column_numbers.append(user_first_language_index_prolific)
     
-    return cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count
+    return cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count, use_bigrams
