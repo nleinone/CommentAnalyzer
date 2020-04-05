@@ -1,3 +1,3 @@
 Condition,Avg. Propability of Positive Sentiment,Avg. Propability of Negative Sentiment,Sample Size,Average word length,Average verb count,Average noun count,Average adjective count
 C01,0.36666666666666664,0.6333333333333331,1,1.0,0.0,1.0,0.0
-C03,0.35085354896675636,0.6491464510332433,1,3.0,1.0,1.0,1.0
+C03,0.48270811421760296,0.5172918857823962,1,3.0,1.0,1.0,1.0

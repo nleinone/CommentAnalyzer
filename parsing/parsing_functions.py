@@ -30,7 +30,6 @@ def parse_relevant_comments(information_collection, user_id_index_dialogue, keys
     #print("\ninformation_collection: " + str(information_collection))
     
     user_id_header = keys[user_id_index_dialogue]
-    print("\n keys: " + str(keys))
     
     #timestamps = []
     relevant_information = []

@@ -127,7 +127,7 @@ def check_cmd_arguments():
         use_bigrams = True
     
     try:
-        use_stemming = sys.argv[10].split("=")
+        use_stemming = sys.argv[11].split("=")
         use_stemming = use_stemming[1]
         if use_stemming.lower() == "false":
             use_stemming = False
@@ -137,22 +137,22 @@ def check_cmd_arguments():
             print("Use Stemming in Preprocessing: " + str(use_stemming))
     except Exception as e:
         print("e: " + str(e))
-        print("Use Stemming in Preprocessing: " + str(use_stemming))
+        print("Use Stemming in Preprocessing: " + str(use_stemming) + " (Default)")
         use_stemming = True
     
     try:
-        use_lemma = sys.argv[11].split("=")
+        use_lemma = sys.argv[12].split("=")
         use_lemma = use_lemma[1]
         if use_lemma.lower() == "false":
             use_lemma = False
-            print("Use Stemming in Preprocessing: " + str(use_lemma))
+            print("Use Lemmatization in Preprocessing: " + str(use_lemma))
         else:
             use_lemma = True
-            print("Use Stemming in Preprocessing: " + str(use_lemma))
+            print("Use Lemmatization in Preprocessing: " + str(use_lemma))
     except Exception as e:
         print("e: " + str(e))
-        print("Use Stemming in Preprocessing: " + str(use_lemma))
-        use_lemma = True
+        print("Use Lemmatization in Preprocessing: " + str(use_lemma) + " (Default)")
+        use_lemma = False
     
     max_line_count = 9999
     
