@@ -383,7 +383,7 @@ def print_statistics(condition, probability_result, nb_classifier, normalized_co
 
     return save_counter
 
-def divide_and_clean_reviews():
+def divide_and_clean_reviews(use_stemming, use_lemma):
     """Filter stopwords from uni and bigram reviews, lower all cases, and remove punctuations. Optionally use stemming (commented)"""
 
     positive_reviews = []
@@ -412,25 +412,24 @@ def divide_and_clean_reviews():
     normalized_reviews_neg_bigram = preprocessor.normalize_and_clean_comment(filt_neg_revs_bigram)
     normalized_reviews_pos_bigram = preprocessor.normalize_and_clean_comment(filt_pos_revs_bigram)
     
-    '''STEMMING'''
-
-    normalized_reviews_neg_stemmed = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
-    normalized_reviews_pos_stemmed = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
-    normalized_reviews_neg_bigram_stemmed = preprocessor.stem_sentence(normalized_reviews_neg_bigram, training_mode)
-    normalized_reviews_pos_bigram_stemmed = preprocessor.stem_sentence(normalized_reviews_pos_bigram, training_mode)
-
-    '''LEMMATIZATION'''
-    #normalized_reviews_neg_lem = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
-    #normalized_reviews_pos_lem = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
-    #normalized_reviews_neg_bigram_lem = preprocessor.lemmatization(normalized_reviews_neg_bigram, training_mode)
-    #normalized_reviews_pos_bigram_lem = preprocessor.lemmatization(normalized_reviews_pos_bigram, training_mode)
-
-    #Lemmatized:
-    #return normalized_reviews_pos_lem, normalized_reviews_neg_lem, normalized_reviews_neg_bigram_lem, normalized_reviews_pos_bigram_lem
-    #Nothing:
-    #return normalized_reviews_pos, normalized_reviews_neg, normalized_reviews_neg_bigram, normalized_reviews_pos_bigram
-    #Stemming:
-    return normalized_reviews_pos_stemmed, normalized_reviews_neg_stemmed, normalized_reviews_neg_bigram_stemmed, normalized_reviews_pos_bigram_stemmed
+    if use_stemming == True:
+        '''STEMMING'''
+        normalized_reviews_neg_stemmed = preprocessor.stem_sentence(normalized_reviews_neg, training_mode)
+        normalized_reviews_pos_stemmed = preprocessor.stem_sentence(normalized_reviews_pos, training_mode)
+        normalized_reviews_neg_bigram_stemmed = preprocessor.stem_sentence(normalized_reviews_neg_bigram, training_mode)
+        normalized_reviews_pos_bigram_stemmed = preprocessor.stem_sentence(normalized_reviews_pos_bigram, training_mode)
+        return normalized_reviews_pos_stemmed, normalized_reviews_neg_stemmed, normalized_reviews_neg_bigram_stemmed, normalized_reviews_pos_bigram_stemmed
+        
+    elif use_lemma == True:
+        '''LEMMATIZATION'''
+        normalized_reviews_neg_lem = preprocessor.lemmatization(normalized_reviews_neg, training_mode)
+        normalized_reviews_pos_lem = preprocessor.lemmatization(normalized_reviews_pos, training_mode)
+        normalized_reviews_neg_bigram_lem = preprocessor.lemmatization(normalized_reviews_neg_bigram, training_mode)
+        normalized_reviews_pos_bigram_lem = preprocessor.lemmatization(normalized_reviews_pos_bigram, training_mode)
+        return normalized_reviews_pos_lem, normalized_reviews_neg_lem, normalized_reviews_neg_bigram_lem, normalized_reviews_pos_bigram_lem
+        
+    else:
+        return normalized_reviews_pos, normalized_reviews_neg, normalized_reviews_neg_bigram, normalized_reviews_pos_bigram
 
 def extract_feature_unigram(words_clean, training_mode):
     '''Extract unigram word features'''
@@ -487,20 +486,15 @@ def extract_features(clean_words_uni, clean_words_bigram, training_mode, use_big
     bigram_features = extract_features_bigram(clean_words_bigram, training_mode)
     
     features = uni_features.copy()
-    print("bigram: ")
-    print(use_bigrams)
     if use_bigrams == True:
-        #print("bigram added")
-        #print(use_bigrams)
         features.update(bigram_features)
         
-
     return features
 
-def create_word_feature_sets(use_bigrams):
+def create_word_feature_sets(use_bigrams, use_stemming, use_lemma):
     """Create word feature set to train the classifier"""
 
-    positive_reviews_uni, negative_reviews_uni, positive_reviews_bigram, negative_reviews_bigram = divide_and_clean_reviews()
+    positive_reviews_uni, negative_reviews_uni, positive_reviews_bigram, negative_reviews_bigram = divide_and_clean_reviews(use_stemming, use_lemma)
     training_mode = True
 
     feature_set_positive = []
@@ -541,10 +535,10 @@ def split_data(feature_set_positive, feature_set_negative, fold):
 
     return training_and_test_data, all_training_data
 
-def get_training_and_test_data(fold, use_bigrams):
+def get_training_and_test_data(fold, use_bigrams, use_stemming, use_lemma):
     '''Top function for training and test data parsing, shuffling and splitting'''
 
-    feature_set_positive, feature_set_negative = create_word_feature_sets(use_bigrams)
+    feature_set_positive, feature_set_negative = create_word_feature_sets(use_bigrams, use_stemming, use_lemma)
     shuffle(feature_set_positive)
     shuffle(feature_set_negative)
 

@@ -15,7 +15,9 @@ parser.add_argument('--age_index_prolific', help='The column number of the user 
 parser.add_argument('--user_sex_index_prolific', help='The column number of the user sex value in the Prolific CSV file. Default=16')
 parser.add_argument('--user_student_status_index_prolific', help='The column number of the user student status value in the Prolific CSV file. Default=14')
 parser.add_argument('--user_first_language_index_prolific', help='The column number of the user first language information value in the Prolific CSV file. Default=17')
-parser.add_argument('--use_bigrams', help='If True, the classifier uses big. Default=17')
+parser.add_argument('--use_bigrams', help='If True, the classifier uses bigrams in feature extraction. Input: True/False. Default=True')
+parser.add_argument('--use_stemming', help='If True, stemming process is used in the preprocessing phase. Input: True/False. Default=True')
+parser.add_argument('--use_lemma', help='If True, Lemmatization process is used in the preprocessing phase. Input: True/False. Default=False')
 
 args=parser.parse_args()
 
@@ -124,6 +126,34 @@ def check_cmd_arguments():
         print("Use bigrams in Feature Extraction: True (Default)")
         use_bigrams = True
     
+    try:
+        use_stemming = sys.argv[10].split("=")
+        use_stemming = use_stemming[1]
+        if use_stemming.lower() == "false":
+            use_stemming = False
+            print("Use Stemming in Preprocessing: " + str(use_stemming))
+        else:
+            use_stemming = True
+            print("Use Stemming in Preprocessing: " + str(use_stemming))
+    except Exception as e:
+        print("e: " + str(e))
+        print("Use Stemming in Preprocessing: " + str(use_stemming))
+        use_stemming = True
+    
+    try:
+        use_lemma = sys.argv[11].split("=")
+        use_lemma = use_lemma[1]
+        if use_lemma.lower() == "false":
+            use_lemma = False
+            print("Use Stemming in Preprocessing: " + str(use_lemma))
+        else:
+            use_lemma = True
+            print("Use Stemming in Preprocessing: " + str(use_lemma))
+    except Exception as e:
+        print("e: " + str(e))
+        print("Use Stemming in Preprocessing: " + str(use_lemma))
+        use_lemma = True
+    
     max_line_count = 9999
     
     print(Style.RESET_ALL)
@@ -135,4 +165,4 @@ def check_cmd_arguments():
     prolific_column_numbers.append(user_student_status_index_prolific)
     prolific_column_numbers.append(user_first_language_index_prolific)
     
-    return cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count, use_bigrams
+    return cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count, use_bigrams, use_stemming, use_lemma

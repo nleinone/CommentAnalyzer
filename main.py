@@ -28,7 +28,7 @@ if __name__ == '__main__':
     Takes the following arguments as cmd line arguments (defaults declared):
     '''
 
-    cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count, use_bigrams = command_arguments.check_cmd_arguments()
+    cross_validate, user_message_index_dialogue, condition_index_dialogue, user_id_index_dialogue, prolific_column_numbers, max_line_count, use_bigrams, use_stemming, use_lemma = command_arguments.check_cmd_arguments()
     start = time.time()
  
     '''Variables'''
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     '''*** INITIAL CONFIGURATIONS ***'''
     print("Configuring classifiers...")
 
-    training_and_test_data, all_training_data = classifier_utils.get_training_and_test_data(cross_validations_fold_ratio, use_bigrams)
+    training_and_test_data, all_training_data = classifier_utils.get_training_and_test_data(cross_validations_fold_ratio, use_bigrams, use_stemming, use_lemma)
     nb_classifier, average_values = configure_classifiers.configure_all(training_and_test_data, all_training_data, cross_validate)
     
     #classifier = ''
